@@ -1,0 +1,4 @@
+paths:
+  /pets:
+    get:
+      summary: DEFAULT SUMMARY

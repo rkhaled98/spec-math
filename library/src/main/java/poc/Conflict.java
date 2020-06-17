@@ -5,18 +5,18 @@ public class Conflict {
     private String optionA;
     private String optionB;
 
-    public Conflict(String attribute, String optionA, String optionB) {
-        this.keypath = attribute;
+    public Conflict(String keypath, String optionA, String optionB) {
+        this.keypath = keypath;
         this.optionA = optionA;
         this.optionB = optionB;
     }
 
-    public String getAttribute() {
+    public String getKeypath() {
         return keypath;
     }
 
-    public void setAttribute(String attribute) {
-        this.keypath = attribute;
+    public void setKeypath(String keypath) {
+        this.keypath = keypath;
     }
 
     public String getOptionA() {

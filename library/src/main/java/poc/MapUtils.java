@@ -16,14 +16,12 @@ limitations under the License.
 
 package poc;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.StringWriter;
-import java.util.Map;
-import java.util.Stack;
 
 public class MapUtils {
 
@@ -41,10 +39,19 @@ public class MapUtils {
     return writer.toString();
   }
 
-  public Map<String, Object> mergeMaps(Map<String, Object> map1, Map<String, Object> map2) {
+  public Map<String, Object> mergeMaps(
+      Map<String, Object> map1, Map<String, Object> map2, Map<String, Object> defaults)
+      throws UnableToMergeException {
     Stack<String> keypath = new Stack<String>();
     ArrayList<Conflict> conflicts = new ArrayList<Conflict>();
-    return mergeMapsHelper(map1, map2, false, keypath, conflicts);
+    Map<String, Object> mergedMap = mergeMapsHelper(map1, map2, false, keypath, conflicts);
+    Map<String, Object> resolvedMap = resolveConflictsWithDefaults(defaults, mergedMap, conflicts);
+
+    if (conflicts.isEmpty()) {
+      return resolvedMap;
+    } else {
+      throw new UnableToMergeException(conflicts);
+    }
   }
 
   public Map<String, Object> applyOverlay(Map<String, Object> defaults, Map<String, Object> map2) {
@@ -53,12 +60,44 @@ public class MapUtils {
 
   public Map<String, Object> resolveConflictsWithDefaults(
       Map<String, Object> defaults, Map<String, Object> map2, ArrayList<Conflict> conflicts) {
-    // TODO FIRST STEP: REMOVE ALL CONFLICTS FROM conflicts ARRAY WHICH HAVE SAME KEY PATH AS SOMETHING IN DEFAULTS.
+    // TWO USES FOR THIS FUNCTION:
+    // 1: IF DEFAULTS FILE IS SPECIFIED BY USER THEN WE WILL USE IT TO TRY TO RESOLVE.
+    // 2: IF SOME KIND OF CONFLICT RESOLUTION FILE IS PROVIDED THEN WE CAN CONVERT IT IN THE
+    // CONTROLLER TO A DEFAULTS MAP, WHICH IS EASIER TO USE IN THIS FUNCTION.
+    // WE MAY NEED A CLASS FOR CONVERTING WHATEVER AGREED UPON FORMAT IS GIVEN FROM THE FRONTEND
+    // INTO THE DEFAULTS MAP WHICH IS USED HERE. THE EASIEST SITUATION WOULD BE IF THE FRONTEND
+    // CREATES THIS NEW DEFAULTS YAML MAP. AND WE MAY ALSO NEED TO MERGE THAT WITH THE ORIGINAL
+    // DEFAULTS.
+
+    // REMOVE ALL CONFLICTS FROM conflicts ARRAY WHICH HAVE SAME KEY PATH AS
+    // SOMETHING IN DEFAULTS.
+    HashSet<String> defaultKeypaths = new HashSet<String>();
+    getKeypathsFromMap(defaults, new Stack<String>(), defaultKeypaths);
+
+    conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
 
     return mergeMapsHelper(defaults, map2, true, new Stack<String>(), new ArrayList<>());
+    // not all conflicts could be resolved
   }
 
+  public void getKeypathsFromMap(
+      Map<String, Object> map, Stack<String> keypath, HashSet<String> result) {
+    for (Map.Entry<String, Object> entry : map.entrySet()) {
+      String key = entry.getKey();
+      Object value = entry.getValue();
+      if (value instanceof Map) {
+        Map<String, Object> nmap = (Map<String, Object>) value;
 
+        keypath.push(key);
+        getKeypathsFromMap(nmap, keypath, result);
+      } else {
+        keypath.push(key);
+        result.add(keypath.toString());
+      }
+
+      keypath.pop(); // backtrack
+    }
+  }
 
   public Map<String, Object> mergeMapsHelper(
       Map<String, Object> map1,
@@ -81,8 +120,7 @@ public class MapUtils {
           if (!nmap1.equals(nmap2)) {
             // there is some diff in value1 and value2
             keypath.push(key);
-            map1.put(
-                key, mergeMapsHelper(nmap1, nmap2, map1IsDefault, keypath, conflicts));
+            map1.put(key, mergeMapsHelper(nmap1, nmap2, map1IsDefault, keypath, conflicts));
             keypath.pop();
           }
         } else if (value1 instanceof List && value2 instanceof List) { // do we need the second conjunct??
@@ -90,13 +128,16 @@ public class MapUtils {
           output.addAll((List<Object>) value1);
           map1.put(key, output);
         } else {
-          // ASSUMPTION: both are primitive values, WITH THE SAME KEY PATHS IN BOTH MAPS, so choose one of them
+          // ASSUMPTION: both are primitive values, WITH THE SAME KEY PATHS IN BOTH MAPS, so choose
+          // one of them
 
-          // THIS IS A CONFLICT, report it back somehow.
+          // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
           if (!value1.equals(value2) && !map1IsDefault) {
             // conflict, unless map1IsDefault.
+            keypath.push(key);
             Conflict conflict = new Conflict(keypath.toString(), (String) value1, (String) value2);
             conflicts.add(conflict);
+            keypath.pop();
           }
           // just keep the value from value1, this is not needed ---> map1.put(key, value1);
         }
@@ -110,7 +151,6 @@ public class MapUtils {
     return map1;
   }
 }
-
 
 //  public ArrayList<Conflict> conflictFinder(
 //          Map<String, Object> map1, Map<String, Object> map2, Map<String, Object> defaults) {

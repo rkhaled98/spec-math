@@ -20,7 +20,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,18 +35,64 @@ class MapUtilsTest {
   void init() {
     yamlUtils = new YamlUtils();
     mapUtils = new MapUtils();
+  } 
+
+  @Test
+  void testGetKeypathsFromMap() throws FileNotFoundException, UnableToMergeException {
+    Map<String, Object> map1 =
+        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
+    HashSet<String> actual = new HashSet<String>();
+
+    // TODO FILL THIS EXPECTED IN
+    HashSet<String> expected = new HashSet<String>();
+
+    mapUtils.getKeypathsFromMap(map1, new Stack<String>(), actual);
+
+    assertEquals(expected, actual);
   }
 
   @Test
-  void testMergeMaps() throws FileNotFoundException {
+  void testMergeMapsWithConflictsThrows() throws FileNotFoundException {
     Map<String, Object> map1 =
         yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
     Map<String, Object> map2 =
         yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore2.yaml");
+    Map<String, Object> defaults = new LinkedHashMap<>();
     Map<String, Object> expected =
         yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoremerged.yaml");
 
-    assertEquals(expected, mapUtils.mergeMaps(map1, map2));
+    assertThrows(UnableToMergeException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
+    //    assertEquals(expected, mapUtils.mergeMaps(map1, map2));
+  }
+
+  @Test
+  void testMergeMapsWithConflictsFixedByDefaults()
+      throws FileNotFoundException, UnableToMergeException {
+    Map<String, Object> map1 =
+        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
+    Map<String, Object> map2 =
+        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore2.yaml");
+    Map<String, Object> defaults =
+        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoredefaults.yaml");
+    Map<String, Object> expected =
+        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoremerged.yaml");
+
+    // assertThrows(UnableToMergeException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
+    assertEquals(expected, mapUtils.mergeMaps(map1, map2, defaults));
+  }
+
+  @Test
+  void testMergeMapsWithoutConflicts() throws FileNotFoundException, UnableToMergeException {
+    Map<String, Object> map1 =
+        yamlUtils.convertYamlFileToMap("src/test/resources/noConflict1.yaml");
+    Map<String, Object> map2 =
+        yamlUtils.convertYamlFileToMap("src/test/resources/noConflict2.yaml");
+    Map<String, Object> defaults = new LinkedHashMap<>();
+
+    Map<String, Object> expected =
+        yamlUtils.convertYamlFileToMap("src/test/resources/noConflictMerged.yaml");
+
+    assertEquals(expected, mapUtils.mergeMaps(map1, map2, defaults));
   }
 
   /*
