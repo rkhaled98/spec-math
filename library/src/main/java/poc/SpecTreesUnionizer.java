@@ -94,6 +94,7 @@ public class SpecTreesUnionizer {
     for (Map.Entry<String, Object> entry : map2.entrySet()) {
       String key = entry.getKey();
       Object value2 = entry.getValue();
+      keypath.push(key);
       if (map1.containsKey(entry.getKey())) {
         // they could both be values, they could both be maps,
         Object value1 = map1.get(key);
@@ -103,12 +104,10 @@ public class SpecTreesUnionizer {
           Map<String, Object> nmap2 = (Map<String, Object>) value2;
           if (!nmap1.equals(nmap2)) {
             // there is some diff in value1 and value2
-            keypath.push(key);
             map1.put(
                 key,
                 mergeMapsHelper(
                     nmap1, nmap2, map1IsDefault, keypath, conflicts, conflictResolutions));
-            keypath.pop();
           }
         } else if (value1 instanceof List
             && value2 instanceof List) { // do we need the second conjunct??
@@ -118,21 +117,18 @@ public class SpecTreesUnionizer {
         } else {
           // ASSUMPTION: both are primitive values, WITH THE SAME KEY PATHS IN BOTH MAPS, so choose
           // one of them
-
-          // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
           if (!value1.equals(value2)) {
-            keypath.push(key);
             String keypathString = keypath.toString();
             if (!map1IsDefault) {
               if (conflictResolutions.containsKey(keypathString)) {
-                // can be resolved
+                // can be resolved by a conflictResolution
                 map1.put(key, conflictResolutions.get(keypathString));
               } else {
+                // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
                 Conflict conflict =
                     new Conflict(keypathString, (String) value1, (String) value2);
                 conflicts.add(conflict);
               }
-              keypath.pop();
             }
             // just keep the value from value1, this is not needed ---> map1.put(key, value1);
           }
@@ -141,6 +137,7 @@ public class SpecTreesUnionizer {
         // the original map didn't contain this key, its a new key so add to tree
         map1.put(key, value2);
       }
+      keypath.pop();
     }
 
     System.out.println(conflicts);
