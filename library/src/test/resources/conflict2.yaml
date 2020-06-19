@@ -1,13 +1,13 @@
 openapi: 3.0.0
 info:
   version: 1.0.2
-  title: Swagger Petstore Marketing
+  title: Swagger Petstore
 servers:
   - url: http://petstore.swagger.io/v1
 paths:
   /pets:
     get:
-      summary: List every pet
+      summary: CONFLICT 2
       operationId: listPets
       tags:
         - pets

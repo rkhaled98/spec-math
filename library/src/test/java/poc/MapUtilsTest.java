@@ -21,26 +21,25 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Stack;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MapUtilsTest {
-  YamlUtils yamlUtils;
   MapUtils mapUtils;
+  YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
 
   @BeforeEach
   void init() {
-    yamlUtils = new YamlUtils();
+    yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
     mapUtils = new MapUtils();
-  } 
+  }
 
   @Test
-  void testGetKeypathsFromMap() throws FileNotFoundException, UnableToMergeException {
+  void testGetKeypathsFromMap() throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
+        yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
     HashSet<String> actual = new HashSet<String>();
 
     // TODO FILL THIS EXPECTED IN
@@ -50,75 +49,4 @@ class MapUtilsTest {
 
     assertEquals(expected, actual);
   }
-
-  @Test
-  void testMergeMapsWithConflictsThrows() throws FileNotFoundException {
-    Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
-    Map<String, Object> map2 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore2.yaml");
-    Map<String, Object> defaults = new LinkedHashMap<>();
-    Map<String, Object> expected =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoremerged.yaml");
-
-    assertThrows(UnableToMergeException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
-    //    assertEquals(expected, mapUtils.mergeMaps(map1, map2));
-  }
-
-  @Test
-  void testMergeMapsWithConflictsFixedByDefaults()
-      throws FileNotFoundException, UnableToMergeException {
-    Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
-    Map<String, Object> map2 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore2.yaml");
-    Map<String, Object> defaults =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoredefaults.yaml");
-    Map<String, Object> expected =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoremerged.yaml");
-
-    // assertThrows(UnableToMergeException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
-    assertEquals(expected, mapUtils.mergeMaps(map1, map2, defaults));
-  }
-
-  @Test
-  void testMergeMapsWithoutConflicts() throws FileNotFoundException, UnableToMergeException {
-    Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/noConflict1.yaml");
-    Map<String, Object> map2 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/noConflict2.yaml");
-    Map<String, Object> defaults = new LinkedHashMap<>();
-
-    Map<String, Object> expected =
-        yamlUtils.convertYamlFileToMap("src/test/resources/noConflictMerged.yaml");
-
-    assertEquals(expected, mapUtils.mergeMaps(map1, map2, defaults));
-  }
-
-  /*
-  @Ignore("not ready yet, need to sort the keys by original order")
-  @Test
-  void testMergeMapsToYAML() throws IOException {
-    Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
-    Map<String, Object> map2 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstore2.yaml");
-
-    String expected =
-        new String(Files.readAllBytes(Paths.get("src/test/resources/simplepetstoremerged.yaml")));
-    assertEquals(expected, mapUtils.convertMapToYaml(mapUtils.mergeMaps(map1, map2)));
-  }
-
-  @Ignore("not ready yet, need to work on indentation in map->YAML output")
-  @Test
-  void testConvertMapToYaml() throws IOException {
-    Map<String, Object> map1 =
-        yamlUtils.convertYamlFileToMap("src/test/resources/simplepetstoremerged.yaml");
-
-    String expected =
-        new String(Files.readAllBytes(Paths.get("src/test/resources/simplepetstoremerged.yaml")));
-
-    assertEquals(expected, mapUtils.convertMapToYaml(map1));
-  }
-  */
 }

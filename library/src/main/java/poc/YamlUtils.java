@@ -26,14 +26,14 @@ import java.util.Map;
 
 public class YamlUtils {
 
-  public Map<String, Object> convertYamlFileToMap(String pathname) throws FileNotFoundException {
-    Yaml yaml = new Yaml();
+  // public Map<String, Object> convertYamlFileToMap(String pathname) throws FileNotFoundException {
+  //   Yaml yaml = new Yaml();
 
-    File file = new File(pathname);
-    InputStream stream = new FileInputStream(file);
+  //   File file = new File(pathname);
+  //   InputStream stream = new FileInputStream(file);
 
-    Map<String, Object> yamlMap = yaml.load(stream);
+  //   Map<String, Object> yamlMap = yaml.load(stream);
 
-    return yamlMap;
-  }
+  //   return yamlMap;
+  // }
 }

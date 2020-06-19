@@ -1,9 +1,10 @@
 openapi: 3.0.0
 info:
-  version: 1.0.2
-  title: Swagger Petstore
+  version: 1.0.0
+  title: the new and improved petstore
   license:
-    name: MIT
+    name:
+      MIT
 servers:
   - url: http://petstore.swagger.io/v1
 paths:
