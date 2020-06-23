@@ -1,0 +1,3 @@
+#[keypath='[paths, /pets, get, summary]', optionA='CONFLICT 1', optionB='CONFLICT 2']
+- keypath: '[paths, /pets, get, summary]'
+  optionA:
