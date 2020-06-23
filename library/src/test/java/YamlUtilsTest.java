@@ -14,26 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package poc;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class YamlUtils {
+import static org.junit.jupiter.api.Assertions.*;
 
-  // public Map<String, Object> convertYamlFileToMap(String pathname) throws FileNotFoundException {
-  //   Yaml yaml = new Yaml();
+class YamlUtilsTest {
 
-  //   File file = new File(pathname);
-  //   InputStream stream = new FileInputStream(file);
-
-  //   Map<String, Object> yamlMap = yaml.load(stream);
-
-  //   return yamlMap;
-  // }
 }

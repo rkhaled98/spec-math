@@ -1,5 +1,3 @@
-package poc;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +28,7 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToMap(
             "src/test/resources/simplepetstore2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
-    HashMap<String, String> conflictResolutions = new HashMap<String, String>();
+    HashMap<String, String> conflictResolutions = new HashMap<>();
     Map<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToMap(
             "src/test/resources/simplepetstoremerged.yaml");
@@ -38,7 +36,6 @@ class SpecTreesUnionizerTest {
     assertThrows(
         UnableToUnionException.class,
         () -> specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
-    //    assertEquals(expected, mapUtils.mergeMaps(map1, map2));
   }
 
   @Test
@@ -59,7 +56,6 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToMap(
             "src/test/resources/simplepetstoremerged.yaml");
 
-    // assertThrows(UnableToUnionException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
     assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
   }
 
@@ -74,14 +70,13 @@ class SpecTreesUnionizerTest {
                     "src/test/resources/conflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
 
-    HashMap<String, String> conflictResolutions = new HashMap<String, String>();
+    HashMap<String, String> conflictResolutions = new HashMap<>();
     conflictResolutions.put("[paths, /pets, get, summary]", "CONFLICT RESOLVED");
 
     Map<String, Object> expected =
             yamlStringToSpecTreeConverter.convertYamlFileToMap(
                     "src/test/resources/conflictMerged.yaml");
 
-    // assertThrows(UnableToUnionException.class, () -> mapUtils.mergeMaps(map1, map2, defaults));
     assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
   }
 
@@ -96,11 +91,10 @@ class SpecTreesUnionizerTest {
                     "src/test/resources/conflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
 
-    HashMap<String, String> conflictResolutions = new HashMap<String, String>();
+    HashMap<String, String> conflictResolutions = new HashMap<>();
     conflictResolutions.put("[this, /isnt, a, path]", "CONFLICT RESOLVED");
 
     assertThrows(UnableToUnionException.class, () -> specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
-//    assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
   }
 
   @Test
@@ -110,7 +104,7 @@ class SpecTreesUnionizerTest {
     Map<String, Object> map2 =
         yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/noConflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
-    HashMap<String, String> conflictResolutions = new HashMap<String, String>();
+    HashMap<String, String> conflictResolutions = new HashMap< >();
 
     Map<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToMap(

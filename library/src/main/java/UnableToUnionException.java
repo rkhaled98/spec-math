@@ -1,5 +1,3 @@
-package poc;
-
 import java.util.ArrayList;
 
 public class UnableToUnionException extends Exception {

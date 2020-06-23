@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package poc;
-
 import java.util.*;
 
 public class SpecTreesUnionizer {
@@ -65,10 +63,12 @@ public class SpecTreesUnionizer {
 
     // REMOVE ALL CONFLICTS FROM conflicts ARRAY WHICH HAVE SAME KEY PATH AS
     // SOMETHING IN DEFAULTS.
-    HashSet<String> defaultKeypaths = new HashSet<String>();
+    Set<String> defaultKeypaths = new HashSet<>();
+
+//    Hashtable
 
     MapUtils mapUtils = new MapUtils();
-    mapUtils.getKeypathsFromMap(defaults, new Stack<String>(), defaultKeypaths);
+    mapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
 
     conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
 
@@ -95,7 +95,7 @@ public class SpecTreesUnionizer {
       String key = entry.getKey();
       Object value2 = entry.getValue();
       keypath.push(key);
-      if (map1.containsKey(entry.getKey())) {
+      if (map1.containsKey(entry.getKey())) { // make each case its own function
         // they could both be values, they could both be maps,
         Object value1 = map1.get(key);
         if (value1 instanceof Map && value2 instanceof Map) { // do we need the second conjunct??
@@ -111,9 +111,10 @@ public class SpecTreesUnionizer {
           }
         } else if (value1 instanceof List
             && value2 instanceof List) { // do we need the second conjunct??
+          // make boddy its own functttion
           List<Object> output = new ArrayList<Object>((List<Object>) value2);
           output.addAll((List<Object>) value1);
-          map1.put(key, output);
+          map1.put(key, output);   // coould be duplicatess
         } else {
           // ASSUMPTION: both are primitive values, WITH THE SAME KEY PATHS IN BOTH MAPS, so choose
           // one of them
@@ -126,7 +127,7 @@ public class SpecTreesUnionizer {
               } else {
                 // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
                 Conflict conflict =
-                    new Conflict(keypathString, (String) value1, (String) value2);
+                    new Conflict(keypathString, (String) value1, (String) value2); // can ccheck if value1 is string
                 conflicts.add(conflict);
               }
             }
@@ -140,7 +141,7 @@ public class SpecTreesUnionizer {
       keypath.pop();
     }
 
-    System.out.println(conflicts);
+//    System.out.println(conflicts);
     return map1;
   }
 }

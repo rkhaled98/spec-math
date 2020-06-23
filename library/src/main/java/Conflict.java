@@ -1,10 +1,22 @@
-package poc;
-
 public class Conflict {
   private String keypath;
   private String optionA;
   private String optionB;
   private String resolvedValue;
+
+  public Conflict() {
+    this.keypath = "";
+    this.optionA = "";
+    this.optionB = "";
+    this.resolvedValue = "";
+  }
+
+  public Conflict(String keypath, String optionA, String optionB, String resolvedValue) {
+    this.keypath = keypath;
+    this.optionA = optionA;
+    this.optionB = optionB;
+    this.resolvedValue = resolvedValue;
+  }
 
   public Conflict(String keypath, String optionA, String optionB) {
     this.keypath = keypath;
@@ -46,13 +58,9 @@ public class Conflict {
   }
 
   @Override
-  public int hashCode(){
-    return keypath.hashCode();
-  }
-
-  @Override
   public String toString() {
-    return "keypath='"
+    return "Conflict{"
+        + "keypath='"
         + keypath
         + '\''
         + ", optionA='"
@@ -60,6 +68,23 @@ public class Conflict {
         + '\''
         + ", optionB='"
         + optionB
-        + '\'';
+        + '\''
+        + ", resolvedValue='"
+        + resolvedValue
+        + '\''
+        + '}';
   }
+
+  //  @Override
+  //  public String toString() {
+  //    return "keypath='"
+  //        + keypath
+  //        + '\''
+  //        + ", optionA='"
+  //        + optionA
+  //        + '\''
+  //        + ", optionB='"
+  //        + optionB
+  //        + '\'';
+  //  }
 }
