@@ -19,11 +19,11 @@ class YamlStringToSpecTreeConverterTest {
   void testThrowFileNotFoundException() {
     assertThrows(
         FileNotFoundException.class,
-        () -> yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/fakepath.yaml"));
+        () -> yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/fakepath.yaml"));
   }
 
   @Test
-  void testConvertYamlToMap() throws FileNotFoundException {
+  void testConvertYamlFileToMap() throws FileNotFoundException {
     Map<String, Object> expected = new LinkedHashMap<String, Object>();
 
     Map<String, Object> license = new LinkedHashMap<String, Object>();
@@ -37,6 +37,14 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("info", info);
 
     assertEquals(
-        expected, yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/simplepetstore3.yaml"));
+        expected, yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/simplepetstore3.yaml"));
+  }
+
+  @Test
+  void testConvertEmptyStringToEmptyMap() throws FileNotFoundException {
+    Map<String, Object> expected = new LinkedHashMap<String, Object>();
+
+    assertEquals(
+            expected, yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(""));
   }
 }

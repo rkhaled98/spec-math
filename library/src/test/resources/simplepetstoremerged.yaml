@@ -58,3 +58,5 @@ components:
           type: string
         tag:
           type: string
+    Dog:
+      

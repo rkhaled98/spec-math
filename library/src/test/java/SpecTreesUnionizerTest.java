@@ -22,15 +22,15 @@ class SpecTreesUnionizerTest {
   @Test
   void testMergeMapsWithConflictsThrows() throws FileNotFoundException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore.yaml");
     Map<String, Object> map2 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
     HashMap<String, String> conflictResolutions = new HashMap<>();
     Map<String, Object> expected =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
     assertThrows(
@@ -42,18 +42,18 @@ class SpecTreesUnionizerTest {
   void testMergeMapsWithConflictsFixedByDefaults()
       throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore.yaml");
     Map<String, Object> map2 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore2.yaml");
     Map<String, Object> defaults =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoredefaults.yaml");
     HashMap<String, String> conflictResolutions = new HashMap<String, String>();
 
     Map<String, Object> expected =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
     assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
@@ -63,10 +63,10 @@ class SpecTreesUnionizerTest {
   void testMergeMapsWithConflictsFixedByConflictResolutions()
           throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-            yamlStringToSpecTreeConverter.convertYamlFileToMap(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict1.yaml");
     Map<String, Object> map2 =
-            yamlStringToSpecTreeConverter.convertYamlFileToMap(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
 
@@ -74,7 +74,7 @@ class SpecTreesUnionizerTest {
     conflictResolutions.put("[paths, /pets, get, summary]", "CONFLICT RESOLVED");
 
     Map<String, Object> expected =
-            yamlStringToSpecTreeConverter.convertYamlFileToMap(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflictMerged.yaml");
 
     assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
@@ -84,10 +84,10 @@ class SpecTreesUnionizerTest {
   void testMergeMapsWithConflictsNotFixedByInvalidConflictResolutions()
           throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-            yamlStringToSpecTreeConverter.convertYamlFileToMap(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict1.yaml");
     Map<String, Object> map2 =
-            yamlStringToSpecTreeConverter.convertYamlFileToMap(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
 
@@ -100,14 +100,14 @@ class SpecTreesUnionizerTest {
   @Test
   void testMergeMapsWithoutConflicts() throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/noConflict1.yaml");
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/noConflict1.yaml");
     Map<String, Object> map2 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/noConflict2.yaml");
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/noConflict2.yaml");
     Map<String, Object> defaults = new LinkedHashMap<>();
     HashMap<String, String> conflictResolutions = new HashMap< >();
 
     Map<String, Object> expected =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap(
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflictMerged.yaml");
 
     assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));

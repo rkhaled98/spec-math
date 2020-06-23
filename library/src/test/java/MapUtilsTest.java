@@ -37,7 +37,7 @@ class MapUtilsTest {
   @Test
   void testGetKeypathsFromMap() throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToMap("src/test/resources/simplepetstore.yaml");
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/simplepetstore.yaml");
     HashSet<String> actual = new HashSet<String>();
 
     // TODO FILL THIS EXPECTED IN

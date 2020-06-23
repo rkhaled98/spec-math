@@ -26,4 +26,8 @@ paths:
         - name: petId
           schema:
             type: string
+components:
+  schemas:
+    Dog:
+      
 

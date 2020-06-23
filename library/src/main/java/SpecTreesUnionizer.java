@@ -63,7 +63,7 @@ public class SpecTreesUnionizer {
 
     // REMOVE ALL CONFLICTS FROM conflicts ARRAY WHICH HAVE SAME KEY PATH AS
     // SOMETHING IN DEFAULTS.
-    Set<String> defaultKeypaths = new HashSet<>();
+    var defaultKeypaths = new HashSet<String>();
 
 //    Hashtable
 

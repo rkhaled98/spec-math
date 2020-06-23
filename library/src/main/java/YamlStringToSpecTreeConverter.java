@@ -5,7 +5,7 @@ import java.io.*;
 import java.util.Map;
 
 public class YamlStringToSpecTreeConverter {
-  public Map<String, Object> convertYamlFileToMap(String pathname) throws FileNotFoundException {
+  public Map<String, Object> convertYamlFileToSpecTree(String pathname) throws FileNotFoundException {
     Yaml yaml = new Yaml();
 
     File file = new File(pathname);
@@ -16,7 +16,7 @@ public class YamlStringToSpecTreeConverter {
     return yamlMap;
   }
 
-  public Map<String, Object> convertYamlStringToMap(String yamlString) {
+  public Map<String, Object> convertYamlStringToSpecTree(String yamlString) {
     Yaml yaml = new Yaml();
 
     Map<String, Object> yamlMap = yaml.load(yamlString);
