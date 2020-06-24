@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.google.common.truth.Truth.*;
 
 class SpecTreesUnionizerTest {
   MapUtils mapUtils;
@@ -35,7 +36,7 @@ class SpecTreesUnionizerTest {
 
     assertThrows(
         UnableToUnionException.class,
-        () -> specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
+        () -> specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
   }
 
   @Test
@@ -56,7 +57,7 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
+    assertEquals(expected, specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
   }
 
   @Test
@@ -77,7 +78,7 @@ class SpecTreesUnionizerTest {
             yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflictMerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
+    assertEquals(expected, specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
   }
 
   @Test
@@ -94,7 +95,7 @@ class SpecTreesUnionizerTest {
     HashMap<String, String> conflictResolutions = new HashMap<>();
     conflictResolutions.put("[this, /isnt, a, path]", "CONFLICT RESOLVED");
 
-    assertThrows(UnableToUnionException.class, () -> specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
+    assertThrows(UnableToUnionException.class, () -> specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
   }
 
   @Test
@@ -110,6 +111,8 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflictMerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.mergeMaps(map1, map2, defaults, conflictResolutions));
+    Map<String, Object> actual =specTreesUnionizer.union(map1, map2, defaults, conflictResolutions);
+
+    assertEquals(expected, actual);
   }
 }

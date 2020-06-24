@@ -18,14 +18,16 @@ import java.util.*;
 
 public class SpecTreesUnionizer {
 
-  public Map<String, Object> mergeMaps(
+  // TODO would it be useful to have a conflictFinder to preprocess conflicts?
+
+  public Map<String, Object> union(
       Map<String, Object> map1,
       Map<String, Object> map2,
       Map<String, Object> defaults,
       HashMap<String, String> conflictResolutions)
       throws UnableToUnionException {
-    Stack<String> keypath = new Stack<String>();
-    ArrayList<Conflict> conflicts = new ArrayList<Conflict>();
+    var keypath = new Stack<String>();
+    var conflicts = new ArrayList<Conflict>();
     Map<String, Object> mergedMap =
         mergeMapsHelper(map1, map2, false, keypath, conflicts, conflictResolutions);
     Map<String, Object> resolvedMap = applyDefaults(defaults, mergedMap, conflicts);
@@ -47,9 +49,6 @@ public class SpecTreesUnionizer {
         new HashMap<String, String>());
   }
 
-  //  public Map<String, Object> applyConflictResolutions(
-  //      Map<String, Object> map, HashSet<Conflict> conflictResolutions) {}
-
   public Map<String, Object> applyDefaults(
       Map<String, Object> defaults, Map<String, Object> map2, ArrayList<Conflict> conflicts) {
     // TWO USES FOR THIS FUNCTION:
@@ -65,23 +64,16 @@ public class SpecTreesUnionizer {
     // SOMETHING IN DEFAULTS.
     var defaultKeypaths = new HashSet<String>();
 
-//    Hashtable
-
     MapUtils mapUtils = new MapUtils();
     mapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
 
     conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
 
-    return mergeMapsHelper(
-        defaults,
-        map2,
-        true,
-        new Stack<String>(),
-        new ArrayList<>(),
-        new HashMap<String, String>());
+    return mergeMapsHelper(defaults, map2, true, new Stack<>(), new ArrayList<>(), new HashMap<>());
     // not all conflicts could be resolved
   }
 
+  @SuppressWarnings("unchecked")
   private Map<String, Object> mergeMapsHelper(
       Map<String, Object> map1,
       Map<String, Object> map2,
@@ -100,63 +92,63 @@ public class SpecTreesUnionizer {
         Object value1 = map1.get(key);
         if (value1 instanceof Map && value2 instanceof Map) { // do we need the second conjunct??
           // need to process further
-          Map<String, Object> nmap1 = (Map<String, Object>) value1;
-          Map<String, Object> nmap2 = (Map<String, Object>) value2;
-          if (!nmap1.equals(nmap2)) {
-            // there is some diff in value1 and value2
+          Map<String, Object> value1Map = (Map<String, Object>) value1;
+          Map<String, Object> value2Map = (Map<String, Object>) value2;
+          if (!value1Map.equals(value2Map)) {
             map1.put(
                 key,
                 mergeMapsHelper(
-                    nmap1, nmap2, map1IsDefault, keypath, conflicts, conflictResolutions));
+                    value1Map, value2Map, map1IsDefault, keypath, conflicts, conflictResolutions));
           }
-        } else if (value1 instanceof List
-            && value2 instanceof List) { // do we need the second conjunct??
-          // make boddy its own functttion
-          List<Object> output = new ArrayList<Object>((List<Object>) value2);
-          output.addAll((List<Object>) value1);
-          map1.put(key, output);   // coould be duplicatess
-        } else {
-          // ASSUMPTION: both are primitive values, WITH THE SAME KEY PATHS IN BOTH MAPS, so choose
-          // one of them
-          if (!value1.equals(value2)) {
-            String keypathString = keypath.toString();
-            if (!map1IsDefault) {
-              if (conflictResolutions.containsKey(keypathString)) {
-                // can be resolved by a conflictResolution
-                map1.put(key, conflictResolutions.get(keypathString));
-              } else {
-                // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
-                Conflict conflict =
-                    new Conflict(keypathString, (String) value1, (String) value2); // can ccheck if value1 is string
-                conflicts.add(conflict);
-              }
-            }
-            // just keep the value from value1, this is not needed ---> map1.put(key, value1);
-          }
+        } else if (value1 instanceof List && value2 instanceof List) {
+          List<Object> output = ListUtils.listUnion((List<Object>) value1, (List<Object>) value2);
+          map1.put(key, output);
+        } else if (value1 instanceof String && value2 instanceof String) {
+          processUnequalLeafNodes(
+              map1,
+              key,
+              (String) value1,
+              (String) value2,
+              map1IsDefault,
+              keypath,
+              conflicts,
+              conflictResolutions);
+        } else if (!value1.equals(value2)){
+          System.out.println("some unexpected case...");
         }
       } else {
-        // the original map didn't contain this key, its a new key so add to tree
+        // its a new key so add to tree
         map1.put(key, value2);
       }
       keypath.pop();
     }
 
-//    System.out.println(conflicts);
     return map1;
   }
-}
 
-//  public ArrayList<Conflict> conflictFinder(
-//          Map<String, Object> map1, Map<String, Object> map2, Map<String, Object> defaults) {
-//    ArrayList<Conflict> conflicts = new ArrayList<Conflict>();
-//
-//    conflictFinderHelper(map1, map2, defaults, conflicts);
-//
-//    return conflicts;
-//  }
-//
-//  public void conflictFinderHelper(
-//          Map<String, Object> map1,
-//          Map<String, Object> map2,
-//          Map<String, Object> defaults,
-//          ArrayList<Conflict> conflicts) {}
+  private void processUnequalLeafNodes(
+      Map<String, Object> map1,
+      String key,
+      String value1,
+      String value2,
+      boolean map1IsDefault,
+      Stack<String> keypath,
+      ArrayList<Conflict> conflicts,
+      HashMap<String, String> conflictResolutions) {
+    if (!value1.equals(value2)) {
+      String keypathString = keypath.toString();
+      if (!map1IsDefault) {
+        if (conflictResolutions.containsKey(keypathString)) {
+          // can be resolved by a conflictResolution
+          map1.put(key, conflictResolutions.get(keypathString));
+        } else {
+          // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
+          Conflict conflict =
+              new Conflict(keypathString, value1, value2); // can ccheck if value1 is string
+          conflicts.add(conflict);
+        }
+      }
+      // just keep the value from value1, this is not needed ---> map1.put(key, value1);
+    }
+  }
+}

@@ -30,15 +30,15 @@ public class CliEntrypoint implements Runnable {
 
   @Override
   public void run() {
-    SpecMathService specMathService = new SpecMathService();
+    SpecMath specMath = new SpecMath();
     try {
       String output;
       String spec1 = Files.readString(Path.of(spec1Path));
       String spec2 = Files.readString(Path.of(spec2Path));
       if (conflictResolutions != null){
-        output = specMathService.union(spec1, spec2, "", conflictResolutions);
+        output = specMath.union(spec1, spec2, "", conflictResolutions);
       } else{
-        output = specMathService.union(spec1, spec2, "", "");
+        output = specMath.union(spec1, spec2, "", "");
 //      System.out.println(e.getConflicts());
       }
       System.out.println(output);
