@@ -1,3 +1,4 @@
+import java.util.LinkedHashMap;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -5,7 +6,7 @@ import java.io.StringWriter;
 import java.util.Map;
 
 public class SpecTreeToYamlStringsConverter {
-  public String convertSpecTreeToYaml(Map<String, Object> yamlMap) {
+  public String convertSpecTreeToYaml(LinkedHashMap<String, Object> yamlMap) {
     DumperOptions options = new DumperOptions();
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 

@@ -1,0 +1,7 @@
+openapi:
+info:
+servers:
+paths:
+  /pets:
+    get:
+components:

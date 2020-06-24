@@ -47,4 +47,25 @@ class YamlStringToSpecTreeConverterTest {
     assertEquals(
             expected, yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(""));
   }
+
+  @Test
+  void testConvertOrderFileToYaml() throws FileNotFoundException {
+    Map<String, Object> expected = new LinkedHashMap<>();
+
+    Map<String, Object> license = new LinkedHashMap<>();
+    license.put("name", "MIT");
+
+    Map<String, Object> paths = new LinkedHashMap<>();
+    Map<String, Object> pets = new LinkedHashMap<>();
+
+    pets.put("get", null);
+    paths.put("/pets", pets);
+
+    expected.put("paths", paths);
+    expected.put("openapi", null);
+    expected.put("info", null);
+
+    assertEquals(
+        expected, yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml"));
+  }
 }

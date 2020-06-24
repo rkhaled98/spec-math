@@ -15,22 +15,23 @@ limitations under the License.
 */
 
 import java.util.*;
+import org.jetbrains.annotations.Contract;
 
 public class SpecTreesUnionizer {
 
   // TODO would it be useful to have a conflictFinder to preprocess conflicts?
 
-  public Map<String, Object> union(
-      Map<String, Object> map1,
-      Map<String, Object> map2,
-      Map<String, Object> defaults,
+  public LinkedHashMap<String, Object> union(
+      LinkedHashMap<String, Object> map1,
+      LinkedHashMap<String, Object> map2,
+      LinkedHashMap<String, Object> defaults,
       HashMap<String, String> conflictResolutions)
       throws UnableToUnionException {
     var keypath = new Stack<String>();
     var conflicts = new ArrayList<Conflict>();
-    Map<String, Object> mergedMap =
+    LinkedHashMap<String, Object> mergedMap =
         mergeMapsHelper(map1, map2, false, keypath, conflicts, conflictResolutions);
-    Map<String, Object> resolvedMap = applyDefaults(defaults, mergedMap, conflicts);
+    LinkedHashMap<String, Object> resolvedMap = applyDefaults(defaults, mergedMap, conflicts);
 
     if (conflicts.isEmpty()) {
       return resolvedMap;
@@ -39,7 +40,7 @@ public class SpecTreesUnionizer {
     }
   }
 
-  public Map<String, Object> applyOverlay(Map<String, Object> defaults, Map<String, Object> map2) {
+  public LinkedHashMap<String, Object> applyOverlay(LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2) {
     return mergeMapsHelper(
         defaults,
         map2,
@@ -49,8 +50,8 @@ public class SpecTreesUnionizer {
         new HashMap<String, String>());
   }
 
-  public Map<String, Object> applyDefaults(
-      Map<String, Object> defaults, Map<String, Object> map2, ArrayList<Conflict> conflicts) {
+  public LinkedHashMap<String, Object> applyDefaults(
+      LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2, ArrayList<Conflict> conflicts) {
     // TWO USES FOR THIS FUNCTION:
     // 1: IF DEFAULTS FILE IS SPECIFIED BY USER THEN WE WILL USE IT TO TRY TO RESOLVE.
     // 2: IF SOME KIND OF CONFLICT RESOLUTION FILE IS PROVIDED THEN WE CAN CONVERT IT IN THE
@@ -69,31 +70,34 @@ public class SpecTreesUnionizer {
 
     conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
 
-    return mergeMapsHelper(defaults, map2, true, new Stack<>(), new ArrayList<>(), new HashMap<>());
+    LinkedHashMap<String, Object> newMap = new LinkedHashMap<>(defaults);
+
+    return mergeMapsHelper(newMap, map2, true, new Stack<>(), new ArrayList<>(), new HashMap<>());
     // not all conflicts could be resolved
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Object> mergeMapsHelper(
-      Map<String, Object> map1,
-      Map<String, Object> map2,
+  private LinkedHashMap<String, Object> mergeMapsHelper(
+      LinkedHashMap<String, Object> map1,
+      LinkedHashMap<String, Object> map2,
       boolean map1IsDefault,
       Stack<String> keypath,
       ArrayList<Conflict> conflicts,
       HashMap<String, String> conflictResolutions) {
 
-    // traverse map2
     for (Map.Entry<String, Object> entry : map2.entrySet()) {
       String key = entry.getKey();
       Object value2 = entry.getValue();
+
       keypath.push(key);
+
       if (map1.containsKey(entry.getKey())) { // make each case its own function
         // they could both be values, they could both be maps,
         Object value1 = map1.get(key);
         if (value1 instanceof Map && value2 instanceof Map) { // do we need the second conjunct??
           // need to process further
-          Map<String, Object> value1Map = (Map<String, Object>) value1;
-          Map<String, Object> value2Map = (Map<String, Object>) value2;
+          LinkedHashMap<String, Object> value1Map = (LinkedHashMap<String, Object>) value1;
+          LinkedHashMap<String, Object> value2Map = (LinkedHashMap<String, Object>) value2;
           if (!value1Map.equals(value2Map)) {
             map1.put(
                 key,
@@ -113,13 +117,15 @@ public class SpecTreesUnionizer {
               keypath,
               conflicts,
               conflictResolutions);
-        } else if (!value1.equals(value2)){
-          System.out.println("some unexpected case...");
+        } else if (value1 == null) {
+          map1.put(key, value2);
+//          System.out.println("some unexpected case...");
         }
       } else {
         // its a new key so add to tree
         map1.put(key, value2);
       }
+
       keypath.pop();
     }
 
@@ -127,7 +133,7 @@ public class SpecTreesUnionizer {
   }
 
   private void processUnequalLeafNodes(
-      Map<String, Object> map1,
+      LinkedHashMap<String, Object> map1,
       String key,
       String value1,
       String value2,

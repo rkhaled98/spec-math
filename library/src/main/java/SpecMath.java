@@ -30,28 +30,31 @@ public class SpecMath {
     }
 
     var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
-    Map<String, Object> spec1map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
-    Map<String, Object> spec2map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec2);
-    Map<String, Object> defaults =
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(unionParameters.defaults());
+    LinkedHashMap<String, Object> spec1map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+    LinkedHashMap<String, Object> spec2map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec2);
+    LinkedHashMap<String, Object> defaults =
+        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(unionParameters.defaults());
 
     var specTreesUnionizer = new SpecTreesUnionizer();
-    Map<String, Object> mergedMap =
+    LinkedHashMap<String, Object> mergedMap =
         specTreesUnionizer.union(spec1map, spec2map, defaults, conflictMap);
+
+    var specTreeOrderer = new SpecTreeOrderer();
+    LinkedHashMap<String, Object> orderedMap = specTreeOrderer.applyOrder(mergedMap);
 
     var specTreeToYamlStringsConverter = new SpecTreeToYamlStringsConverter();
 
-    return specTreeToYamlStringsConverter.convertSpecTreeToYaml(mergedMap);
+    return specTreeToYamlStringsConverter.convertSpecTreeToYaml(orderedMap);
   }
 
   public static String applyOverlay(String spec1, String overlay) {
     var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
-    Map<String, Object> spec1map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
-    Map<String, Object> overlayMap =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(overlay);
+    LinkedHashMap<String, Object> spec1map = yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+    LinkedHashMap<String, Object> overlayMap =
+        yamlStringToSpecTreeConverter.convertYamlStringToOrderedSpecTree(overlay);
 
     var specTreesUnionizer = new SpecTreesUnionizer();
-    Map<String, Object> overlayedMap = specTreesUnionizer.applyOverlay(overlayMap, spec1map);
+    LinkedHashMap<String, Object> overlayedMap = specTreesUnionizer.applyOverlay(overlayMap, spec1map);
 
     var specTreeToYamlStringsConverter = new SpecTreeToYamlStringsConverter();
     return specTreeToYamlStringsConverter.convertSpecTreeToYaml(overlayedMap);
