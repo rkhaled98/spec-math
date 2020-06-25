@@ -6,7 +6,7 @@ import java.io.StringWriter;
 import java.util.Map;
 
 public class SpecTreeToYamlStringsConverter {
-  public String convertSpecTreeToYaml(LinkedHashMap<String, Object> yamlMap) {
+  public String convertSpecTreeToYamlString(LinkedHashMap<String, Object> yamlMap) {
     DumperOptions options = new DumperOptions();
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 

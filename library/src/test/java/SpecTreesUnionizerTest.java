@@ -28,15 +28,15 @@ class SpecTreesUnionizerTest {
     LinkedHashMap<String, Object> map2 =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore2.yaml");
-    LinkedHashMap<String, Object> defaults = new LinkedHashMap<>();
-    HashMap<String, String> conflictResolutions = new HashMap<>();
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
     LinkedHashMap<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
+
     assertThrows(
         UnableToUnionException.class,
-        () -> specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
+        () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
   }
 
   @Test
@@ -51,13 +51,14 @@ class SpecTreesUnionizerTest {
     LinkedHashMap<String, Object> defaults =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoredefaults.yaml");
-    HashMap<String, String> conflictResolutions = new HashMap<String, String>();
+
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().defaults(defaults).build();
 
     LinkedHashMap<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
+    assertEquals(expected, specTreesUnionizer.union(map1, map2, unionizerUnionParams));
   }
 
   @Test
@@ -69,16 +70,17 @@ class SpecTreesUnionizerTest {
     LinkedHashMap<String, Object> map2 =
             yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict2.yaml");
-    LinkedHashMap<String, Object> defaults = new LinkedHashMap<>();
 
     HashMap<String, String> conflictResolutions = new HashMap<>();
     conflictResolutions.put("[paths, /pets, get, summary]", "CONFLICT RESOLVED");
+
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().conflictResolutions(conflictResolutions).build();
 
     LinkedHashMap<String, Object> expected =
             yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflictMerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
+    assertEquals(expected, specTreesUnionizer.union(map1, map2, unionizerUnionParams));
   }
 
   @Test
@@ -90,12 +92,13 @@ class SpecTreesUnionizerTest {
     LinkedHashMap<String, Object> map2 =
             yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                     "src/test/resources/conflict2.yaml");
-    LinkedHashMap<String, Object> defaults = new LinkedHashMap<>();
 
     HashMap<String, String> conflictResolutions = new HashMap<>();
     conflictResolutions.put("[this, /isnt, a, path]", "CONFLICT RESOLVED");
 
-    assertThrows(UnableToUnionException.class, () -> specTreesUnionizer.union(map1, map2, defaults, conflictResolutions));
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().conflictResolutions(conflictResolutions).build();
+
+    assertThrows(UnableToUnionException.class, () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
   }
 
   @Test
@@ -104,14 +107,14 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/noConflict1.yaml");
     LinkedHashMap<String, Object> map2 =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/noConflict2.yaml");
-    LinkedHashMap<String, Object> defaults = new LinkedHashMap<>();
-    HashMap<String, String> conflictResolutions = new HashMap< >();
+
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
 
     LinkedHashMap<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflictMerged.yaml");
 
-    Map<String, Object> actual =specTreesUnionizer.union(map1, map2, defaults, conflictResolutions);
+    Map<String, Object> actual =specTreesUnionizer.union(map1, map2, unionizerUnionParams);
 
     assertEquals(expected, actual);
   }

@@ -51,8 +51,8 @@ public class CliEntrypoint implements Runnable {
       String spec2 = Files.readString(Path.of(spec2Path));
       if (conflictResolutionsPath != null) {
         String conflictResolutions = Files.readString(Path.of(conflictResolutionsPath));
-        UnionParameters params =
-            UnionParameters.builder().conflictResolutions(conflictResolutions).build();
+        UnionOptions params =
+            UnionOptions.builder().conflictResolutions(conflictResolutions).build();
         output = specMath.union(spec1, spec2, params);
       } else {
         output = specMath.union(spec1, spec2);
