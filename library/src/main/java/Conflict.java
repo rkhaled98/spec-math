@@ -1,10 +1,24 @@
 public class Conflict {
   private String keypath;
-  private String optionA;
-  private String optionB;
-  private String resolvedValue;
+  private Object optionA;
+  private Object optionB;
+  private Object resolvedValue;
 
-  public Conflict(String keypath, String optionA, String optionB) {
+  public Conflict(){
+    this.keypath = "";
+    this.optionA = "";
+    this.optionB = "";
+    this.resolvedValue = "";
+  }
+
+  public Conflict(String keypath, Object optionA, Object optionB, Object resolvedValue){
+    this.keypath = keypath;
+    this.optionA = optionA;
+    this.optionB = optionB;
+    this.resolvedValue = resolvedValue;
+  }
+
+  public Conflict(String keypath, Object optionA, Object optionB) {
     this.keypath = keypath;
     this.optionA = optionA;
     this.optionB = optionB;
@@ -14,7 +28,7 @@ public class Conflict {
     return keypath;
   }
 
-  public String getResolvedValue() {
+  public Object getResolvedValue() {
     return resolvedValue;
   }
 

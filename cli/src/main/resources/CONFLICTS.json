@@ -2,5 +2,5 @@
   "keypath" : "[paths, /pets, get, summary]",
   "optionA" : "summmmary of peeet store",
   "optionB" : "CONFLICT 2",
-  "resolvedValue" :     "summmmary of peeet store"
+  "resolvedValue" : "resolved value"
 } ]

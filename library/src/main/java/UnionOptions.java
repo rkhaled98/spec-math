@@ -1,9 +1,3 @@
-// DumperOptions options = new DumperOptions();
-//    options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-//
-//    options.setIndent(4);
-//    options.setIndicatorIndent(2);
-
 import com.google.auto.value.AutoValue;
 
 @AutoValue

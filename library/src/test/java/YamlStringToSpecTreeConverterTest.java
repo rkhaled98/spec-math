@@ -19,7 +19,9 @@ class YamlStringToSpecTreeConverterTest {
   void testThrowFileNotFoundException() {
     assertThrows(
         FileNotFoundException.class,
-        () -> yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/fakepath.yaml"));
+        () ->
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+                "src/test/resources/fakepath.yaml"));
   }
 
   @Test
@@ -37,15 +39,16 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("info", info);
 
     assertEquals(
-        expected, yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/simplepetstore3.yaml"));
+        expected,
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+            "src/test/resources/simplepetstore3.yaml"));
   }
 
   @Test
   void testConvertEmptyStringToEmptyMap() throws FileNotFoundException {
     Map<String, Object> expected = new LinkedHashMap<>();
 
-    assertEquals(
-            expected, yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(""));
+    assertEquals(expected, yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(""));
   }
 
   @Test
@@ -65,7 +68,19 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", null);
     expected.put("info", null);
 
+    Map<String, Object> actual =
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/scratch.yaml");
+
+    if (actual.get("minLength") instanceof String){
+      System.out.println("yes");
+    } else{
+      System.out.println(actual.get("minLength").getClass());
+      System.out.println("no");
+    }
+    System.out.println(actual.get("minLength"));
+
     assertEquals(
-        expected, yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml"));
+        expected,
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml"));
   }
 }

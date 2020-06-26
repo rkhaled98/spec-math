@@ -21,6 +21,14 @@ public class SpecTreesUnionizer {
   // TODO would it be useful to have a conflictFinder to preprocess conflicts?
 
   public LinkedHashMap<String, Object> union(
+      LinkedHashMap<String, Object> map1, LinkedHashMap<String, Object> map2)
+      throws UnableToUnionException {
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
+
+    return union(map1, map2, unionizerUnionParams);
+  }
+
+  public LinkedHashMap<String, Object> union(
       LinkedHashMap<String, Object> map1,
       LinkedHashMap<String, Object> map2,
       UnionizerUnionParams unionizerUnionParams)
@@ -36,10 +44,10 @@ public class SpecTreesUnionizer {
             conflicts,
             unionizerUnionParams.conflictResolutions());
 
-    LinkedHashMap<String, Object> resolvedMap =
-        applyDefaults(unionizerUnionParams.defaults(), mergedMap, conflicts);
+    removeConflictsFixedByDefaults(unionizerUnionParams.defaults(), conflicts);
 
-    // todo consider adding the ordering step here as part of the unionizer parameters.
+    LinkedHashMap<String, Object> resolvedMap =
+        applyOverlay(unionizerUnionParams.defaults(), mergedMap);
 
     if (conflicts.isEmpty()) {
       return resolvedMap;
@@ -48,6 +56,15 @@ public class SpecTreesUnionizer {
     }
   }
 
+  /**
+   * Returns a new map with {@code defaults} overlay applied to {@code map2}. In other words,
+   * perform a union where {@code defaults} values takes priority over values with the same keypath
+   * in {@code map2}
+   *
+   * @param defaults
+   * @param map2
+   * @return
+   */
   public LinkedHashMap<String, Object> applyOverlay(
       LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2) {
     return union(
@@ -56,41 +73,48 @@ public class SpecTreesUnionizer {
         true,
         false,
         new Stack<String>(),
-        new ArrayList<>(),
-        new HashMap<String, String>());
+        new ArrayList<Conflict>(),
+        new HashMap<String, Object>());
   }
 
-  public LinkedHashMap<String, Object> applyDefaults(
-      LinkedHashMap<String, Object> defaults,
-      LinkedHashMap<String, Object> map2,
-      ArrayList<Conflict> conflicts) {
-    // TWO USES FOR THIS FUNCTION:
-    // 1: IF DEFAULTS FILE IS SPECIFIED BY USER THEN WE WILL USE IT TO TRY TO RESOLVE.
-    // 2: IF SOME KIND OF CONFLICT RESOLUTION FILE IS PROVIDED THEN WE CAN CONVERT IT IN THE
-    // CONTROLLER TO A DEFAULTS MAP, WHICH IS EASIER TO USE IN THIS FUNCTION.
-    // WE MAY NEED A CLASS FOR CONVERTING WHATEVER AGREED UPON FORMAT IS GIVEN FROM THE FRONTEND
-    // INTO THE DEFAULTS MAP WHICH IS USED HERE. THE EASIEST SITUATION WOULD BE IF THE FRONTEND
-    // CREATES THIS NEW DEFAULTS YAML MAP. AND WE MAY ALSO NEED TO MERGE THAT WITH THE ORIGINAL
-    // DEFAULTS.
+  /**
+   * Removes conflicts from {@code conflicts} parameter passed by reference if the conflicting
+   * keypath is also a path in the defaults map
+   *
+   * @param defaults
+   * @param conflicts
+   */
+  private void removeConflictsFixedByDefaults(
+      LinkedHashMap<String, Object> defaults, ArrayList<Conflict> conflicts) {
 
-    // REMOVE ALL CONFLICTS FROM conflicts ARRAY WHICH HAVE SAME KEY PATH AS
-    // SOMETHING IN DEFAULTS.
     var defaultKeypaths = new HashSet<String>();
 
     MapUtils mapUtils = new MapUtils();
+
     mapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
 
     conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
-
-    LinkedHashMap<String, Object> newMap = new LinkedHashMap<>(defaults);
-
-    return union(
-        newMap, map2, true, false, new Stack<String>(), new ArrayList<>(), new HashMap<>());
-    // not all conflicts could be resolved
   }
 
   static final String ORDER_VALUE = null;
 
+  /**
+   * Union function with all possible options. Other functions provide a nicer interface for
+   * different use cases of union, and ultimately call this function
+   *
+   * @param map1 map 1/2 to merge. This map is special because it can take priority in the union
+   *     based on {@code map1IsDefault} or {@code map1IsOrderer}
+   * @param map2 map 2/2 to merge
+   * @param map1IsDefault if true, map1 will take priority over map2 in case of different leaf
+   *     values, and no conflict will be reported
+   * @param map1IsOrderer if true, map1 will provide the order of the keys for the merged map, and
+   *     keys not in map1 will have arbitrary order
+   * @param keypath the key path which the leaf nodes belong to in the current iteration of the
+   *     recursive frame
+   * @param conflicts appended to if there is an unresolvable conflict
+   * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
+   * @return
+   */
   @SuppressWarnings("unchecked")
   private LinkedHashMap<String, Object> union(
       LinkedHashMap<String, Object> map1,
@@ -99,7 +123,7 @@ public class SpecTreesUnionizer {
       boolean map1IsOrderer,
       Stack<String> keypath,
       ArrayList<Conflict> conflicts,
-      HashMap<String, String> conflictResolutions) {
+      HashMap<String, Object> conflictResolutions) {
 
     for (Map.Entry<String, Object> entry : map2.entrySet()) {
       String key = entry.getKey();
@@ -109,12 +133,13 @@ public class SpecTreesUnionizer {
 
       if (map1.containsKey(entry.getKey())) { // make each case its own function
         Object value1 = map1.get(key);
-        if (value1 instanceof LinkedHashMap
-            && value2 instanceof LinkedHashMap) { // do we need the second conjunct??
-          // need to process further
-          LinkedHashMap<String, Object> value1Map = (LinkedHashMap<String, Object>) value1;
-          LinkedHashMap<String, Object> value2Map = (LinkedHashMap<String, Object>) value2;
-          if (!value1Map.equals(value2Map)) {
+
+        if (!value1.equals(value2)) {
+          if (value1 instanceof LinkedHashMap
+              && value2 instanceof LinkedHashMap) { // do we need the second conjunct??
+            // need to process further
+            LinkedHashMap<String, Object> value1Map = (LinkedHashMap<String, Object>) value1;
+            LinkedHashMap<String, Object> value2Map = (LinkedHashMap<String, Object>) value2;
             map1.put(
                 key,
                 union(
@@ -125,23 +150,20 @@ public class SpecTreesUnionizer {
                     keypath,
                     conflicts,
                     conflictResolutions));
+
+          } else if (value1 instanceof List && value2 instanceof List) {
+            List<Object> output = ListUtils.listUnion((List<Object>) value1, (List<Object>) value2);
+            map1.put(key, output);
+          } else if ((value1 instanceof String && value2 instanceof String)
+              || (value1 instanceof Integer && value2 instanceof Integer)
+              || (value1 instanceof Boolean && value2 instanceof Boolean)) {
+            processUnequalLeafNodes(
+                map1, key, value1, value2, map1IsDefault, keypath, conflicts, conflictResolutions);
+          } else if (value1 == ORDER_VALUE && map1IsOrderer) {
+            map1.put(key, value2);
           }
-        } else if (value1 instanceof List && value2 instanceof List) {
-          List<Object> output = ListUtils.listUnion((List<Object>) value1, (List<Object>) value2);
-          map1.put(key, output);
-        } else if (value1 instanceof String && value2 instanceof String) {
-          processUnequalLeafNodes(
-              map1,
-              key,
-              (String) value1,
-              (String) value2,
-              map1IsDefault,
-              keypath,
-              conflicts,
-              conflictResolutions);
-        } else if (value1 == ORDER_VALUE && map1IsOrderer) {
-          map1.put(key, value2);
         }
+
       } else {
         // its a new key so add to tree
         map1.put(key, value2);
@@ -153,29 +175,41 @@ public class SpecTreesUnionizer {
     return map1;
   }
 
+  /**
+   * Used when two leaf nodes are different. If {@code map1IsDefault} is true, then there is no
+   * conflict. Otherwise, there is a conflict if there is no {@code key} in {@code
+   * conflictResolutions} that matches the {@code keypath} of the current nodes. In the case of a
+   * conflict, add it to the {@code conflictResolutions} array.
+   *
+   * @param map1
+   * @param key the key which both leaf nodes belong to
+   * @param value1
+   * @param value2
+   * @param map1IsDefault if true, nothing is done since {@code value1} already contains the correct
+   *     value
+   * @param keypath the key path which both leaf nodes belong to
+   * @param conflicts appended to if there is an unresolvable conflict
+   * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
+   */
   private void processUnequalLeafNodes(
       LinkedHashMap<String, Object> map1,
       String key,
-      String value1,
-      String value2,
+      Object value1,
+      Object value2,
       boolean map1IsDefault,
       Stack<String> keypath,
       ArrayList<Conflict> conflicts,
-      HashMap<String, String> conflictResolutions) {
-    if (!value1.equals(value2)) {
+      HashMap<String, Object> conflictResolutions) {
+
+    if (!map1IsDefault) {
       String keypathString = keypath.toString();
-      if (!map1IsDefault) {
-        if (conflictResolutions.containsKey(keypathString)) {
-          // can be resolved by a conflictResolution
-          map1.put(key, conflictResolutions.get(keypathString));
-        } else {
-          // THIS IS A CONFLICT, add it as a new Conflict in the conflicts array list.
-          Conflict conflict =
-              new Conflict(keypathString, value1, value2); // can ccheck if value1 is string
-          conflicts.add(conflict);
-        }
+      if (conflictResolutions.containsKey(keypathString)) {
+        // can be resolved by a conflictResolution
+        map1.put(key, conflictResolutions.get(keypathString));
+      } else {
+        Conflict conflict = new Conflict(keypathString, value1, value2);
+        conflicts.add(conflict);
       }
-      // just keep the value from value1, this is not needed ---> map1.put(key, value1);
     }
   }
 }

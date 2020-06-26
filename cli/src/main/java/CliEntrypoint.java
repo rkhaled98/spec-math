@@ -59,8 +59,10 @@ public class CliEntrypoint implements Runnable {
         //      System.out.println(e.getConflicts());
       }
       System.out.println(output);
-    } catch (IOException | UnableToUnionException e) {
+    } catch (IOException e) {
       e.printStackTrace();
+    } catch (UnableToUnionException e){
+      System.out.println(e.getConflicts());
     }
   }
 }

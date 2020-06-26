@@ -8,12 +8,12 @@ import java.util.Stack;
 @AutoValue
 public abstract class UnionizerUnionParams {
   public abstract LinkedHashMap<String, Object> defaults();
-  public abstract HashMap<String, String> conflictResolutions();
+  public abstract HashMap<String, Object> conflictResolutions();
 
   public static Builder builder() {
     return new AutoValue_UnionizerUnionParams.Builder()
         .defaults(new LinkedHashMap<String, Object>())
-        .conflictResolutions(new HashMap<String, String>());
+        .conflictResolutions(new HashMap<String, Object>());
   }
 
   @AutoValue.Builder
@@ -21,7 +21,7 @@ public abstract class UnionizerUnionParams {
 
     public abstract Builder defaults(LinkedHashMap<String, Object> defaults);
 
-    public abstract Builder conflictResolutions(HashMap<String, String> conflictResolutions);
+    public abstract Builder conflictResolutions(HashMap<String, Object> conflictResolutions);
 
     public abstract UnionizerUnionParams build();
   }
