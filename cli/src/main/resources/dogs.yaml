@@ -1,0 +1,24 @@
+openapi: 3.0.0
+info:
+  title: Swagger Petstore Dog Team
+  license:
+    name: MIT
+  version: 1.0.9
+paths:
+  /dogs/groom:
+    post:
+      summary: groom all dogs
+      tags:
+        - dogs
+        - groom
+      responses:
+        '200':
+          description: successfully groomed the dog
+  /dogs/pet:
+    post:
+      summary: pet all the dogs
+  /pets/{petId}:
+    get:
+      summary: get the specified pets
+
+

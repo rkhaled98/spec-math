@@ -39,15 +39,15 @@ public class SpecTreesUnionizer {
             map1,
             map2,
             false,
-            false,
             new Stack<String>(),
             conflicts,
             unionizerUnionParams.conflictResolutions());
 
     removeConflictsFixedByDefaults(unionizerUnionParams.defaults(), conflicts);
 
-    LinkedHashMap<String, Object> resolvedMap =
-        applyOverlay(unionizerUnionParams.defaults(), mergedMap);
+    LinkedHashMap<String, Object> newMap = new LinkedHashMap<>(unionizerUnionParams.defaults());
+
+    LinkedHashMap<String, Object> resolvedMap = applyOverlay(newMap, mergedMap);
 
     if (conflicts.isEmpty()) {
       return resolvedMap;
@@ -71,7 +71,6 @@ public class SpecTreesUnionizer {
         defaults,
         map2,
         true,
-        false,
         new Stack<String>(),
         new ArrayList<Conflict>(),
         new HashMap<String, Object>());
@@ -89,26 +88,22 @@ public class SpecTreesUnionizer {
 
     var defaultKeypaths = new HashSet<String>();
 
-    MapUtils mapUtils = new MapUtils();
-
-    mapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
+    MapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
 
     conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
   }
 
-  static final String ORDER_VALUE = null;
-
   /**
    * Union function with all possible options. Other functions provide a nicer interface for
    * different use cases of union, and ultimately call this function
+   * <p></p>
+   * the reason we use @SuppressWarnings("unchecked") for this function is because we need to
    *
    * @param map1 map 1/2 to merge. This map is special because it can take priority in the union
    *     based on {@code map1IsDefault} or {@code map1IsOrderer}
    * @param map2 map 2/2 to merge
    * @param map1IsDefault if true, map1 will take priority over map2 in case of different leaf
    *     values, and no conflict will be reported
-   * @param map1IsOrderer if true, map1 will provide the order of the keys for the merged map, and
-   *     keys not in map1 will have arbitrary order
    * @param keypath the key path which the leaf nodes belong to in the current iteration of the
    *     recursive frame
    * @param conflicts appended to if there is an unresolvable conflict
@@ -120,7 +115,6 @@ public class SpecTreesUnionizer {
       LinkedHashMap<String, Object> map1,
       LinkedHashMap<String, Object> map2,
       boolean map1IsDefault,
-      boolean map1IsOrderer,
       Stack<String> keypath,
       ArrayList<Conflict> conflicts,
       HashMap<String, Object> conflictResolutions) {
@@ -146,7 +140,6 @@ public class SpecTreesUnionizer {
                     value1Map,
                     value2Map,
                     map1IsDefault,
-                    map1IsOrderer,
                     keypath,
                     conflicts,
                     conflictResolutions));
@@ -159,8 +152,8 @@ public class SpecTreesUnionizer {
               || (value1 instanceof Boolean && value2 instanceof Boolean)) {
             processUnequalLeafNodes(
                 map1, key, value1, value2, map1IsDefault, keypath, conflicts, conflictResolutions);
-          } else if (value1 == ORDER_VALUE && map1IsOrderer) {
-            map1.put(key, value2);
+          } else {
+            System.out.println("Unhandled Data During Union");
           }
         }
 

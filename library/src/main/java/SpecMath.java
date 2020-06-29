@@ -1,16 +1,12 @@
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.util.*;
 
 public class SpecMath {
   /**
-   * Performs the union operation on two specs represented as strings.
-   * This operation will attempt to combine {@code spec1} and {@code spec2} using the logic
-   * provided in the SpecTreeUnionizer class. Since no arguments are provided, it will attempt the
-   * union and if any conflicts are found an {@code UnableToUnionException} will be thrown.
+   * Performs the union operation on two specs represented as strings. This operation will attempt
+   * to combine {@code spec1} and {@code spec2} using the logic provided in the SpecTreeUnionizer
+   * class. Since no arguments are provided, it will attempt the union and if any conflicts are
+   * found an {@code UnableToUnionException} will be thrown.
    *
    * @param spec1
    * @param spec2
@@ -27,13 +23,10 @@ public class SpecMath {
   }
 
   /**
-   * Performs the union operation on two specs represented as strings.
-   * This operation will attempt to combine {@code spec1} and {@code spec2} using the logic
-   * provided in the SpecTreeUnionizer class. If {@code UnionOptions} are provided,
-   * then it will apply them as is appropriate based on the logic in the @code SpecTreeUnionizer}
-   * class. If {@code UnionOptions} cannot resolve the conflict then an {@code UnableToUnionException}
-   * will be thrown.
-   *
+   * Performs the union operation on two specs represented as strings. If {@code UnionOptions} are
+   * provided, then it will apply them as is appropriate based on the logic in the {@code
+   * SpecTreeUnionizer} class. If {@code UnionOptions} cannot resolve the conflict then an {@code
+   * UnableToUnionException} will be thrown.
    *
    * @param spec1
    * @param spec2
@@ -45,23 +38,10 @@ public class SpecMath {
    */
   public static String union(String spec1, String spec2, UnionOptions unionOptions)
       throws IOException, UnableToUnionException {
-    var mapper = new ObjectMapper();
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-
-    HashMap<String, Object> conflictMap = new HashMap<>();
-
-    // conflictResolutions is a json string
-    // might be its own function
-    String conflictResolutions = unionOptions.conflictResolutions();
-    if (!conflictResolutions.isEmpty()) {
-      List<Conflict> conflictObjs =
-          mapper.readValue(conflictResolutions, new TypeReference<List<Conflict>>() {});
-      for (Conflict conflictObj : conflictObjs) {
-        String keypath = conflictObj.getKeypath();
-        Object resolvedValue = conflictObj.getResolvedValue();
-        conflictMap.put(keypath, resolvedValue);
-      }
-    }
+    var conflictStringToConflictMapConverter = new ConflictStringToConflictMapConverter();
+    HashMap<String, Object> conflictResolutionsMap =
+        conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(
+            unionOptions.conflictResolutions());
 
     var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
     LinkedHashMap<String, Object> spec1map =
@@ -73,12 +53,9 @@ public class SpecMath {
 
     var specTreesUnionizer = new SpecTreesUnionizer();
     UnionizerUnionParams unionizerUnionParams =
-        UnionizerUnionParams.builder().defaults(defaults).conflictResolutions(conflictMap).build();
+        UnionizerUnionParams.builder().defaults(defaults).conflictResolutions(conflictResolutionsMap).build();
     LinkedHashMap<String, Object> mergedMap =
         specTreesUnionizer.union(spec1map, spec2map, unionizerUnionParams);
-
-    //    var specTreeOrderer = new SpecTreeOrderer();
-    //    LinkedHashMap<String, Object> orderedMap = specTreeOrderer.applyOrder(mergedMap);
 
     var specTreeToYamlStringsConverter = new SpecTreeToYamlStringsConverter();
 
@@ -86,14 +63,14 @@ public class SpecMath {
   }
 
   /**
-   * Performs the overlay operation on two specs represented as strings by calling the
-   * {@code applyOverlay} function of the {@code SpecTreeUnionizer} class.
+   * Performs the overlay operation on two specs represented as strings by calling the {@code
+   * applyOverlay} function of the {@code SpecTreeUnionizer} class.
    *
    * @param spec1
    * @param overlay
    * @return
    */
-  public static String applyOverlay(String spec1, String overlay) throws IOException {
+  public static String applyOverlay(String overlay, String spec1) throws IOException {
     var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
     LinkedHashMap<String, Object> spec1map =
         yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);

@@ -1,3 +1,4 @@
+import com.esotericsoftware.yamlbeans.YamlConfig;
 import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlWriter;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -18,6 +19,14 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 public class SpecTreeToYamlStringsConverter {
+
+  /**
+   * Converts a spec tree represented as a {@code LinkedHashMap} to a YAML string
+   *
+   * @param yamlMap a spec tree
+   * @return a YAML string which represents {@code yamlMap}
+   * @throws IOException if there is a parsing issue
+   */
   public String convertSpecTreeToYamlString(LinkedHashMap<String, Object> yamlMap)
       throws IOException {
     //The representer allows us to ignore null properties, and to leave off the class definitions
@@ -44,14 +53,14 @@ public class SpecTreeToYamlStringsConverter {
 //        return super.representJavaBean(properties, javaBean);
 //      }
 //    };
-
+//
     DumperOptions options = new DumperOptions();
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
 
     YAMLFactory yamlFactory = new YAMLFactory();
 
-    options.setIndent(2);
-    options.setIndicatorIndent(1);
+    options.setIndent(4);
+    options.setIndicatorIndent(2);
 
     StringWriter writer = new StringWriter();
 
@@ -61,15 +70,20 @@ public class SpecTreeToYamlStringsConverter {
     return writer.toString();
 //
 //    Writer swriter = new StringWriter();
-////    yaml.dump(yamlMap, writer);
-//
+//    yaml.dump(yamlMap, writer);
+
 //    YamlWriter writer = new YamlWriter(swriter);
 //    writer.getConfig().writeConfig.setIndentSize(2);
 //    writer.getConfig().writeConfig.setAutoAnchor(false);
-//    writer.getConfig().writeConfig.setWriteRootTags(false);
-//    writer.getConfig().writeConfig.setWriteDefaultValues(false);
-//    writer.getConfig().writeConfig.setUseVerbatimTags(false);
-//    writer.getConfig().writeConfig.setWriteRootElementTags(false);
+////    writer.getConfig().writeConfig.setWriteRootTags(false);
+////    writer.getConfig().writeConfig.setWriteDefaultValues(false);
+//    writer.getConfig().writeConfig.setKeepBeanPropertyOrder(true);
+////    writer.getConfig().writeConfig.setUseVerbatimTags(false);
+////    writer.getConfig().writeConfig.setWriteRootElementTags(false);
+//    writer.getConfig().writeConfig.setWriteClassname(YamlConfig.WriteClassName.NEVER);
+////    writer.getConfig().setClassTag("", LinkedHashMap.class);
+////    writer.getConfig().writeConfig.setWriteClassname(YamlConfig.WriteClassName.NEVER);
+//
 //
 ////    writer.getConfig().writeConfig.setWriteRootTags(false);
 ////    writer.getConfig().writeConfig.

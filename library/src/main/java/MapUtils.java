@@ -16,24 +16,28 @@ limitations under the License.
 
 import java.util.*;
 
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.StringWriter;
-
 public class MapUtils {
-  public void getKeypathsFromMap(
+
+  /**
+   * Adds all root to leaf node keypaths in {@code map} to {@code result} HashSet
+   *
+   * @param map the map which we will find all the keypaths for
+   * @param keypath the path of keys taken to get to a leaf node in the map
+   * @param result a HashSet of Strings which this function will add all the keypaths of leaf nodes
+   *     to during the traversal
+   */
+  @SuppressWarnings("unchecked")
+  public static void getKeypathsFromMap(
       Map<String, Object> map, Stack<String> keypath, HashSet<String> result) {
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
+      keypath.push(key);
       if (value instanceof Map) {
         Map<String, Object> nmap = (Map<String, Object>) value;
-
-        keypath.push(key);
         getKeypathsFromMap(nmap, keypath, result);
       } else {
-        keypath.push(key);
+        // this is a leaf node, so add keypath and then we are done
         result.add(keypath.toString());
       }
 
