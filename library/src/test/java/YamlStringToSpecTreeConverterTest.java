@@ -1,5 +1,6 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static com.google.common.truth.Truth.*;
 
 import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
@@ -38,17 +39,15 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", "3.0.0");
     expected.put("info", info);
 
-    assertEquals(
-        expected,
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
-            "src/test/resources/simplepetstore3.yaml"));
+    assertThat(yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+        "src/test/resources/simplepetstore3.yaml")).isEqualTo(expected);
   }
 
   @Test
   void testConvertEmptyStringToEmptyMap() throws FileNotFoundException {
     Map<String, Object> expected = new LinkedHashMap<>();
 
-    assertEquals(expected, yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(""));
+    assertThat(yamlStringToSpecTreeConverter.convertYamlStringToSpecTree("")).isEqualTo(expected);
   }
 
   @Test
@@ -68,19 +67,6 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", null);
     expected.put("info", null);
 
-    Map<String, Object> actual =
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/scratch.yaml");
-
-    if (actual.get("minLength") instanceof String){
-      System.out.println("yes");
-    } else{
-      System.out.println(actual.get("minLength").getClass());
-      System.out.println("no");
-    }
-    System.out.println(actual.get("minLength"));
-
-    assertEquals(
-        expected,
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml"));
+    assertThat(yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml")).isEqualTo(expected);
   }
 }

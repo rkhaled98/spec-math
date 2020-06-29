@@ -1,5 +1,7 @@
+import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static com.google.common.truth.Truth.*;
 
 import java.io.*;
 import java.util.HashMap;
@@ -7,10 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static com.google.common.truth.Truth.*;
 
 class SpecTreesUnionizerTest {
-  MapUtils mapUtils;
   SpecTreesUnionizer specTreesUnionizer;
   YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
 
@@ -29,13 +29,16 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstore2.yaml");
     UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
-    LinkedHashMap<String, Object> expected =
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
-            "src/test/resources/simplepetstoremerged.yaml");
 
-    assertThrows(
+    UnableToUnionException e = assertThrows(
         UnableToUnionException.class,
         () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+
+    ArrayList<Conflict> expected = new ArrayList<>();
+    expected.add(new Conflict("[info, title]", "Swagger Petstore Platform",  "Swagger Petstore Marketing"));
+    expected.add(new Conflict("[paths, /pets, get, summary]", "List all pets", "List every pet"));
+
+    assertThat(e.getConflicts()).isEqualTo(expected);
   }
 
   @Test
@@ -58,7 +61,7 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+    assertThat(specTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
   }
 
   @Test
@@ -81,7 +84,7 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/conflictMerged.yaml");
 
-    assertEquals(expected, specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+    assertThat(specTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
   }
 
   @Test
@@ -114,14 +117,12 @@ class SpecTreesUnionizerTest {
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflict2.yaml");
 
-    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
-
     LinkedHashMap<String, Object> expected =
         yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflictMerged.yaml");
 
-    Map<String, Object> actual = specTreesUnionizer.union(map1, map2, unionizerUnionParams);
+    Map<String, Object> actual = specTreesUnionizer.union(map1, map2);
 
-    assertEquals(expected, actual);
+    assertThat(specTreesUnionizer.union(map1, map2)).isEqualTo(expected);
   }
 }

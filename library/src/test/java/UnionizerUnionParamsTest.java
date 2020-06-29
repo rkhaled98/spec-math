@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class UnionizerUnionParamsTest {
-
 //  @Test
 //  void testUseUnionOptionsBuilderDefaultsEmpty() {
 //    UnionizerUnionParams unionizerUnionParams =
@@ -14,5 +13,4 @@ class UnionizerUnionParamsTest {
 //
 //    assertThat(unionizerUnionParams2.map1IsDefault()).isEqualTo(true);
 //  }
-
 }

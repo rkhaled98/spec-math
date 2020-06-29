@@ -16,6 +16,7 @@ limitations under the License.
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static com.google.common.truth.Truth.*;
 
 import java.io.*;
 import java.util.HashSet;
@@ -25,26 +26,28 @@ import java.util.Stack;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MapUtilsTest {
-  MapUtils mapUtils;
   YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
 
   @BeforeEach
   void init() {
     yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
-    mapUtils = new MapUtils();
   }
 
   @Test
   void testGetKeypathsFromMap() throws FileNotFoundException, UnableToUnionException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/simplepetstore.yaml");
-    HashSet<String> actual = new HashSet<String>();
+        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/metadata.yaml");
+    HashSet<String> actual = new HashSet<>();
 
-    // TODO FILL THIS EXPECTED IN
-    HashSet<String> expected = new HashSet<String>();
+    HashSet<String> expected = new HashSet<>();
 
-    mapUtils.getKeypathsFromMap(map1, new Stack<String>(), actual);
+    expected.add("[info, version]");
+    expected.add("[openapi]");
+    expected.add("[info, title]");
+    expected.add("[info, license, name]");
 
-    assertEquals(expected, actual);
+    MapUtils.getKeypathsFromMap(map1, new Stack<String>(), actual);
+
+    assertThat(actual).isEqualTo(expected);
   }
 }
