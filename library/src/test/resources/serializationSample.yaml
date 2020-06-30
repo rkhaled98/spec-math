@@ -36,6 +36,7 @@ paths:
                 $ref: "#/components/schemas/Pet"
   /newPath:
     get:
+      required: true
       parameters:
         - name: petId
           schema:

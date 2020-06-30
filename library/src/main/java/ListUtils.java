@@ -10,8 +10,8 @@ public class ListUtils {
 
     seenElements.addAll(output);
 
-    for (Object element : list1){
-      if (!seenElements.contains(element)){
+    for (Object element : list1) {
+      if (!seenElements.contains(element)) {
         output.add(element);
       }
     }

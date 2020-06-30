@@ -96,8 +96,8 @@ public class SpecTreesUnionizer {
   /**
    * Union function with all possible options. Other functions provide a nicer interface for
    * different use cases of union, and ultimately call this function
-   * <p></p>
-   * the reason we use @SuppressWarnings("unchecked") for this function is because we need to
+   *
+   * <p>the reason we use @SuppressWarnings("unchecked") for this function is because we need to
    *
    * @param map1 map 1/2 to merge. This map is special because it can take priority in the union
    *     based on {@code map1IsDefault} or {@code map1IsOrderer}
@@ -137,14 +137,9 @@ public class SpecTreesUnionizer {
             map1.put(
                 key,
                 union(
-                    value1Map,
-                    value2Map,
-                    map1IsDefault,
-                    keypath,
-                    conflicts,
-                    conflictResolutions));
+                    value1Map, value2Map, map1IsDefault, keypath, conflicts, conflictResolutions));
 
-          } else if (value1 instanceof List && value2 instanceof List) {
+          } else if (value1 instanceof List && value2 instanceof List && !map1IsDefault) {
             List<Object> output = ListUtils.listUnion((List<Object>) value1, (List<Object>) value2);
             map1.put(key, output);
           } else if ((value1 instanceof String && value2 instanceof String)

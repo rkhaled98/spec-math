@@ -39,4 +39,22 @@ public class Conflict {
         && optionB.equals(conflict.optionB)
         && Objects.equals(resolvedValue, conflict.resolvedValue);
   }
+
+  @Override
+  public String toString() {
+    return "Conflict{"
+        + "keypath='"
+        + keypath
+        + '\''
+        + ", optionA='"
+        + optionA
+        + '\''
+        + ", optionB='"
+        + optionB
+        + '\''
+        + ", resolvedValue='"
+        + resolvedValue
+        + '\''
+        + '}';
+  }
 }

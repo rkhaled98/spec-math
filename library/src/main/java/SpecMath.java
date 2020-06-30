@@ -53,7 +53,10 @@ public class SpecMath {
 
     var specTreesUnionizer = new SpecTreesUnionizer();
     UnionizerUnionParams unionizerUnionParams =
-        UnionizerUnionParams.builder().defaults(defaults).conflictResolutions(conflictResolutionsMap).build();
+        UnionizerUnionParams.builder()
+            .defaults(defaults)
+            .conflictResolutions(conflictResolutionsMap)
+            .build();
     LinkedHashMap<String, Object> mergedMap =
         specTreesUnionizer.union(spec1map, spec2map, unionizerUnionParams);
 
