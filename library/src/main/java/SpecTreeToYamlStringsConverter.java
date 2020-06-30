@@ -1,23 +1,7 @@
-import com.esotericsoftware.yamlbeans.YamlConfig;
-import com.esotericsoftware.yamlbeans.YamlException;
-import com.esotericsoftware.yamlbeans.YamlWriter;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
-import org.yaml.snakeyaml.DumperOptions;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.StringWriter;
 import java.util.Map;
-import org.yaml.snakeyaml.introspector.Property;
-import org.yaml.snakeyaml.nodes.MappingNode;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.Tag;
-import org.yaml.snakeyaml.representer.Representer;
 
 public class SpecTreeToYamlStringsConverter {
 
@@ -39,7 +23,8 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   @SuppressWarnings("unchecked")
-  private String convertSpecTreeToYamlString(LinkedHashMap<String, Object> map, int level, boolean firstListElement) {
+  private String convertSpecTreeToYamlString(
+      LinkedHashMap<String, Object> map, int level, boolean firstListElement) {
     StringBuilder str = new StringBuilder();
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       String key = entry.getKey();

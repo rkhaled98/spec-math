@@ -1,14 +1,13 @@
-import java.util.ArrayList;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static com.google.common.truth.Truth.*;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class SpecTreesUnionizerTest {
   SpecTreesUnionizer specTreesUnionizer;
@@ -30,12 +29,14 @@ class SpecTreesUnionizerTest {
             "src/test/resources/simplepetstore2.yaml");
     UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
 
-    UnableToUnionException e = assertThrows(
-        UnableToUnionException.class,
-        () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+    UnableToUnionException e =
+        assertThrows(
+            UnableToUnionException.class,
+            () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
 
     ArrayList<Conflict> expected = new ArrayList<>();
-    expected.add(new Conflict("[info, title]", "Swagger Petstore Platform",  "Swagger Petstore Marketing"));
+    expected.add(
+        new Conflict("[info, title]", "Swagger Petstore Platform", "Swagger Petstore Marketing"));
     expected.add(new Conflict("[paths, /pets, get, summary]", "List all pets", "List every pet"));
 
     assertThat(e.getConflicts()).isEqualTo(expected);

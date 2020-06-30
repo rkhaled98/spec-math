@@ -1,5 +1,6 @@
+import static com.google.common.truth.Truth.assertThat;
+
 import org.junit.jupiter.api.Test;
-import static com.google.common.truth.Truth.*;
 
 class UnionParametersTest {
   @Test
@@ -16,8 +17,7 @@ class UnionParametersTest {
 
   @Test
   void testUseUnionParametersBuilderDefaultsEmpty() {
-    UnionOptions up =
-        UnionOptions.builder().conflictResolutions("testing auto value").build();
+    UnionOptions up = UnionOptions.builder().conflictResolutions("testing auto value").build();
 
     assertThat(up.defaults()).isEqualTo("");
     assertThat(up.conflictResolutions()).isEqualTo("testing auto value");

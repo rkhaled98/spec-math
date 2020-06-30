@@ -14,13 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class MathUtilsTest {
   MathUtils mathUtils;
@@ -28,6 +29,19 @@ class MathUtilsTest {
   @BeforeEach
   void init() {
     mathUtils = new MathUtils();
+  }
+
+  @Test
+  void testSumOfArray() {
+    assertAll(
+        () -> assertEquals(0, mathUtils.sumOfArray(Arrays.asList(1, -1))),
+        () -> assertEquals(6, mathUtils.sumOfArray(Arrays.asList(1, 2, 3))),
+        () -> assertEquals(0, mathUtils.sumOfArray(Arrays.asList(new Integer[] {}))));
+  }
+
+  @Test
+  void testComputeArea() {
+    assertEquals(78, mathUtils.computeArea(5), "Compute area method should return circle area");
   }
 
   @Nested
@@ -48,14 +62,6 @@ class MathUtilsTest {
     }
   }
 
-  @Test
-  void testSumOfArray() {
-    assertAll(
-        () -> assertEquals(0, mathUtils.sumOfArray(Arrays.asList(new Integer[] {1, -1}))),
-        () -> assertEquals(6, mathUtils.sumOfArray(Arrays.asList(new Integer[] {1, 2, 3}))),
-        () -> assertEquals(0, mathUtils.sumOfArray(Arrays.asList(new Integer[] {}))));
-  }
-
   @Nested
   class DivideTest {
     @Test
@@ -68,10 +74,5 @@ class MathUtilsTest {
       assertThrows(
           ArithmeticException.class, () -> mathUtils.divide(1, 0), "Divide by zero should throw");
     }
-  }
-
-  @Test
-  void testComputeArea() {
-    assertEquals(78, mathUtils.computeArea(5), "Compute area method should return circle area");
   }
 }

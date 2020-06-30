@@ -1,12 +1,11 @@
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static com.google.common.truth.Truth.*;
+import static com.google.common.truth.Truth.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileNotFoundException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class YamlStringToSpecTreeConverterTest {
   YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
@@ -39,8 +38,10 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", "3.0.0");
     expected.put("info", info);
 
-    assertThat(yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
-        "src/test/resources/simplepetstore3.yaml")).isEqualTo(expected);
+    assertThat(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+                "src/test/resources/simplepetstore3.yaml"))
+        .isEqualTo(expected);
   }
 
   @Test
@@ -67,6 +68,9 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", null);
     expected.put("info", null);
 
-    assertThat(yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/order.yaml")).isEqualTo(expected);
+    assertThat(
+            yamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+                "src/test/resources/order.yaml"))
+        .isEqualTo(expected);
   }
 }

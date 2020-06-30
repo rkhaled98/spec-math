@@ -1,12 +1,9 @@
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class SpecTreeToYamlStringsConverterTest {

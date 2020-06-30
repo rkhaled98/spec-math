@@ -14,15 +14,4 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.FileNotFoundException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class YamlUtilsTest {
-
-}
+class YamlUtilsTest {}

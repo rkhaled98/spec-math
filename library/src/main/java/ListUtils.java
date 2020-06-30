@@ -2,9 +2,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-/**
- * Provides static functions for operations on Lists
- */
+/** Provides static functions for operations on Lists */
 public class ListUtils {
 
   /**

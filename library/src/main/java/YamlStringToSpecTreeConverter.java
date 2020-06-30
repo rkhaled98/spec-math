@@ -1,7 +1,9 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.*;
 
 public class YamlStringToSpecTreeConverter {
   public LinkedHashMap<String, Object> convertYamlFileToSpecTree(String pathname)

@@ -1,5 +1,4 @@
-import static org.junit.jupiter.api.Assertions.*;
-import static com.google.common.truth.Truth.*;
+import static com.google.common.truth.Truth.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +19,9 @@ class ConflictStringToConflictMapConverterTest {
   void testConvertEmptyConflictResolutionsString() throws IOException {
     HashMap<String, Object> expected = new HashMap<>();
 
-    assertThat(conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap("")).isEqualTo(expected);
+    assertThat(
+            conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(""))
+        .isEqualTo(expected);
   }
 
   @Test
@@ -31,6 +32,9 @@ class ConflictStringToConflictMapConverterTest {
     String conflictResolutions =
         Files.readString(Path.of("src/test/resources/conflictResolutions.json"));
 
-    assertThat(conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(conflictResolutions)).isEqualTo(expected);
+    assertThat(
+            conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(
+                conflictResolutions))
+        .isEqualTo(expected);
   }
 }

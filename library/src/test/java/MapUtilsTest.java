@@ -4,6 +4,7 @@ Copyright 2020 Google LLC
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+You may obtain a copy of the License at
 
 https://www.apache.org/licenses/LICENSE-2.0
 
@@ -14,14 +15,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import static com.google.common.truth.Truth.*;
+import static com.google.common.truth.Truth.assertThat;
 
-import java.io.*;
+import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Stack;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class MapUtilsTest {
   YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
