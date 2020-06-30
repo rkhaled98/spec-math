@@ -3,13 +3,14 @@ import java.util.*;
 
 public class SpecMath {
   /**
-   * Performs the union operation on two specs represented as strings. This operation will attempt
-   * to combine {@code spec1} and {@code spec2} using the logic provided in the SpecTreeUnionizer
-   * class. Since no arguments are provided, it will attempt the union and if any conflicts are
-   * found an {@code UnableToUnionException} will be thrown.
+   * Performs the union operation on two specs represented as strings.
    *
-   * @param spec1
-   * @param spec2
+   * <p>This operation will attempt to combine {@code spec1} and {@code spec2} using the logic
+   * provided in the SpecTreeUnionizer class. Since no arguments are provided, it will attempt the
+   * union and if any conflicts are found an {@code UnableToUnionException} will be thrown.
+   *
+   * @param spec1 the first spec to be merged
+   * @param spec2 the second spec to be merged
    * @return the result of the union on spec1 and spec2, as a YAML string
    * @throws IOException if there was a parsing issue
    * @throws UnableToUnionException if there was a conflict in the union process, i.e. when two
