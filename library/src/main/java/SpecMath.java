@@ -45,13 +45,12 @@ public class SpecMath {
         conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(
             unionOptions.conflictResolutions());
 
-    var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
     LinkedHashMap<String, Object> spec1map =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
     LinkedHashMap<String, Object> spec2map =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec2);
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec2);
     LinkedHashMap<String, Object> defaults =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(unionOptions.defaults());
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(unionOptions.defaults());
 
     var specTreesUnionizer = new SpecTreesUnionizer();
     UnionizerUnionParams unionizerUnionParams =
@@ -76,11 +75,10 @@ public class SpecMath {
    * @return
    */
   public static String applyOverlay(String overlay, String spec1) throws IOException {
-    var yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
     LinkedHashMap<String, Object> spec1map =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
     LinkedHashMap<String, Object> overlayMap =
-        yamlStringToSpecTreeConverter.convertYamlStringToSpecTree(overlay);
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(overlay);
 
     var specTreesUnionizer = new SpecTreesUnionizer();
     LinkedHashMap<String, Object> overlayedMap =
