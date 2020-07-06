@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,26 +11,15 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   /**
-   * Converts a spec tree represented as a {@code LinkedHashMap} to a YAML string
+   * Converts a spec tree represented as a {@code LinkedHashMap} to a YAML string.
    *
-   * @param yamlMap a spec tree
+   * @param yamlMap a spec tree which is a LinkedHashMap which String keys and Object values
    * @return a YAML string which represents {@code yamlMap}
-   * @throws IOException if there is a parsing issue
    */
   public String convertSpecTreeToYamlString(LinkedHashMap<String, Object> yamlMap) {
     return convertSpecTreeToYamlString(yamlMap, 0, false);
   }
 
-  @SuppressWarnings("unchecked")
-  // SuppressWarnings was used here and in a few other places in the library. When deserializing the
-  // YAML file within the library (in the YamlStringToSpecTreeConverter class), it becomes a
-  // LinkedHashMap<String, Object> which is a Map<String, Object>. The value of map could be another
-  // Map, or other stuff i.e. List, String, Integer, Boolean. This piece of recursive code assumes
-  // that the provided Map fits this criteria, namely that if the value is a Map, then it will
-  // always be a Map<String, Object>. Usage of this function is internal in the library where we can
-  // guarantee that the map parameter provided is Map<String, Object> where if the Object value is a
-  // Map, and it passes the (value instanceof Map) condition, then it must be some Map<String,
-  // Object>.
   private String convertSpecTreeToYamlString(
       LinkedHashMap<String, Object> map, int level, boolean firstListElement) {
     StringBuilder str = new StringBuilder();
@@ -43,11 +31,11 @@ public class SpecTreeToYamlStringsConverter {
 
       handleKey(str, key);
 
-      if (value instanceof LinkedHashMap) {
-        handleMapValue(level, str, (LinkedHashMap<String, Object>) value);
-      } else if (value instanceof List) {
-        handleListValues(level, str, (List<Object>) value);
-      } else if (value instanceof String || value instanceof Boolean || value instanceof Integer) {
+      if (TypeChecker.isObjectMap(value)) {
+        handleMapValue(level, str, ObjectCaster.castObjectToStringObjectMap(value));
+      } else if (TypeChecker.isObjectList(value)) {
+        handleListValues(level, str, ObjectCaster.castObjectToListOfObjects(value));
+      } else if (TypeChecker.isObjectPrimitive(value)) {
         handlePrimitiveValue(str, key, value);
       }
     }
@@ -55,36 +43,41 @@ public class SpecTreeToYamlStringsConverter {
     return str.toString();
   }
 
-  @SuppressWarnings("unchecked")
-  // SuppressWarnings was used here and in a few other places in the library. When deserializing the
-  // YAML file within the library (in the YamlStringToSpecTreeConverter class), it becomes a
-  // LinkedHashMap<String, Object> which is a Map<String, Object>. The value of map could be another
-  // Map, or other stuff i.e. List, String, Integer, Boolean. This piece of recursive code assumes
-  // that the provided Map fits this criteria, namely that if the value is a Map, then it will
-  // always be a Map<String, Object>. Usage of this function is internal in the library where we can
-  // guarantee that the map parameter provided is Map<String, Object> where if the Object value is a
-  // Map, and it passes the (value instanceof Map) condition, then it must be some Map<String,
-  // Object>.
+  /**
+   * Processes and appends the elements in a list to the StringBuilder.
+   *
+   * @param level the current traversal level, which indicates how many spaces to print out
+   * @param str the StringBuilder which we append to during the traversal
+   * @param value the list of values to process
+   */
   private void handleListValues(int level, StringBuilder str, List<Object> value) {
-    List<Object> valueList = value;
     int listLevel = level + 1;
 
     str.append("\n");
-    for (int i = 0; i < valueList.size(); i++) {
+    for (int i = 0; i < value.size(); i++) {
       str.append(spaces(listLevel));
       str.append("- ");
 
-      Object element = valueList.get(i);
+      Object element = value.get(i);
 
-      if (element instanceof String || element instanceof Boolean || element instanceof Integer) {
+      if (TypeChecker.isObjectPrimitive(element)) {
         str.append(String.format("%s\n", element));
-      } else if (element instanceof LinkedHashMap) {
-        LinkedHashMap<String, Object> elementMap = (LinkedHashMap<String, Object>) element;
+      } else if (TypeChecker.isObjectMap(element)) {
+        LinkedHashMap<String, Object> elementMap = ObjectCaster.castObjectToStringObjectMap(element);
         str.append(convertSpecTreeToYamlString(elementMap, listLevel + 1, true));
       }
     }
   }
 
+  /**
+   * @param level the current traversal level, which indicates how many spaces to print out
+   * @param firstListElement a boolean which indicates whether or not current element in the loop
+   *                         is the first element of a list, which needs to be processed in a
+   *                         special way
+   * @param str the StringBuilder which we append to during the traversal
+   * @return {@code false if {@code firstListElement} was initially true. Otherwise it
+   *     returns true
+   */
   private boolean handleFirstElementSpacing(
       int level, boolean firstListElement, StringBuilder str) {
     if (!firstListElement) {
@@ -95,6 +88,13 @@ public class SpecTreeToYamlStringsConverter {
     return firstListElement;
   }
 
+  /**
+   * Appends the a key to the StringBuilder.
+   *
+   * @param str the StringBuilder which we append to during the traversal
+   * @param key the key which we want to append to the StringBuilder, which is handled in special
+   *     ways depending on the key
+   */
   private void handleKey(StringBuilder str, String key) {
     // the key is a digit, which is surrounded by single quotes
     if ((key.chars().allMatch(Character::isDigit))) {
@@ -104,14 +104,30 @@ public class SpecTreeToYamlStringsConverter {
     }
   }
 
+  /**
+   * Appends a primitive value to the StringBuilder.
+   *
+   * @param str the StringBuilder which we append to during the traversal
+   * @param key the key in the map which corresponds to the value, used for special handling of
+   *     certain keys
+   * @param value the primitive value to add to the StringBuilder
+   */
   private void handlePrimitiveValue(StringBuilder str, String key, Object value) {
     if (key.equals("$ref")) {
+      // a "$ref" tag should be handled in a special way, with the value in double quotes.
       str.append(String.format(" \"%s\"\n", value));
     } else {
       str.append(String.format(" %s\n", value));
     }
   }
 
+  /**
+   * Appends the result of processing a map value to the StringBuilder.
+   *
+   * @param level the current traversal level
+   * @param str the StringBuilder which we append to during the traversal
+   * @param value the map value to process further
+   */
   private void handleMapValue(int level, StringBuilder str, LinkedHashMap<String, Object> value) {
     LinkedHashMap<String, Object> valueMap = value;
 
@@ -119,7 +135,8 @@ public class SpecTreeToYamlStringsConverter {
     str.append(convertSpecTreeToYamlString(valueMap, level + 1, false));
   }
 
-  public String spaces(int level) {
+  /** Returns a string with {@code level} * {@code this.indent} spaces. */
+  private String spaces(int level) {
     StringBuilder str = new StringBuilder();
     for (int i = 0; i < level * this.indent; i++) {
       str.append(" ");

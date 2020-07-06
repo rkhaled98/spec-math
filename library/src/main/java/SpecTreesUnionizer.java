@@ -66,10 +66,6 @@ public class SpecTreesUnionizer {
    * Returns a new map with {@code defaults} overlay applied to {@code map2}. In other words,
    * perform a union where {@code defaults} values takes priority over values with the same keypath
    * in {@code map2}
-   *
-   * @param defaults
-   * @param map2
-   * @return
    */
   public LinkedHashMap<String, Object> applyOverlay(
       LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2) {
@@ -84,10 +80,11 @@ public class SpecTreesUnionizer {
 
   /**
    * Removes conflicts from {@code conflicts} parameter passed by reference if the conflicting
-   * keypath is also a path in the defaults map
+   * keypath is also a path in the defaults map.
    *
-   * @param defaults
-   * @param conflicts
+   * @param defaults a map which contains defaults to apply to some output of a union
+   * @param conflicts an ArrayList passed by reference, which gets updated based on the conflicts
+   *     which do not occur thanks to the default map
    */
   private void removeConflictsFixedByDefaults(
       LinkedHashMap<String, Object> defaults, ArrayList<Conflict> conflicts) {
@@ -101,9 +98,7 @@ public class SpecTreesUnionizer {
 
   /**
    * Union function with all possible options. Other functions provide a nicer interface for
-   * different use cases of union, and ultimately call this function
-   *
-   * <p>the reason we use @SuppressWarnings("unchecked") for this function is because we need to
+   * different use cases of union, and ultimately call this function.
    *
    * @param map1 map 1/2 to merge. This map is special because it can take priority in the union
    *     based on {@code map1IsDefault} or {@code map1IsOrderer}
@@ -116,7 +111,6 @@ public class SpecTreesUnionizer {
    * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
    * @return
    */
-  @SuppressWarnings("unchecked")
   private LinkedHashMap<String, Object> union(
       LinkedHashMap<String, Object> map1,
       LinkedHashMap<String, Object> map2,
@@ -135,22 +129,28 @@ public class SpecTreesUnionizer {
         Object value1 = map1.get(key);
 
         if (!value1.equals(value2)) {
-          if (value1 instanceof LinkedHashMap
-              && value2 instanceof LinkedHashMap) { // do we need the second conjunct??
+          if (TypeChecker.isObjectMap(value1)
+              && TypeChecker.isObjectMap((value2))) { // do we need the second conjunct??
             // need to process further
-            LinkedHashMap<String, Object> value1Map = (LinkedHashMap<String, Object>) value1;
-            LinkedHashMap<String, Object> value2Map = (LinkedHashMap<String, Object>) value2;
+            LinkedHashMap<String, Object> value1Map =
+                ObjectCaster.castObjectToStringObjectMap(value1);
+            LinkedHashMap<String, Object> value2Map =
+                ObjectCaster.castObjectToStringObjectMap(value2);
             map1.put(
                 key,
                 union(
                     value1Map, value2Map, map1IsDefault, keypath, conflicts, conflictResolutions));
 
-          } else if (value1 instanceof List && value2 instanceof List && !map1IsDefault) {
-            List<Object> output = ListUtils.listUnion((List<Object>) value1, (List<Object>) value2);
+          } else if (TypeChecker.isObjectList(value1)
+              && TypeChecker.isObjectList(value2)
+              && !map1IsDefault) {
+            List<Object> output =
+                ListUtils.listUnion(
+                    ObjectCaster.castObjectToListOfObjects(value1),
+                    ObjectCaster.castObjectToListOfObjects(value2));
             map1.put(key, output);
-          } else if ((value1 instanceof String && value2 instanceof String)
-              || (value1 instanceof Integer && value2 instanceof Integer)
-              || (value1 instanceof Boolean && value2 instanceof Boolean)) {
+          } else if (TypeChecker.isObjectPrimitive(value1)
+              && TypeChecker.isObjectPrimitive(value2)) {
             processUnequalLeafNodes(
                 map1, key, value1, value2, map1IsDefault, keypath, conflicts, conflictResolutions);
           } else {
@@ -175,12 +175,13 @@ public class SpecTreesUnionizer {
    * conflictResolutions} that matches the {@code keypath} of the current nodes. In the case of a
    * conflict, add it to the {@code conflictResolutions} array.
    *
-   * @param map1
+   * @param map1 the output map, which may be added to
    * @param key the key which both leaf nodes belong to
-   * @param value1
-   * @param value2
+   * @param value1 the first value to consider
+   * @param value2 the second value to consider. If it is different from value2 and cannot be
+   *     resolved by either defaults or conflictResolutions, then there is a conflict.
    * @param map1IsDefault if true, nothing is done since {@code value1} already contains the correct
-   *     value
+   *     value.
    * @param keypath the key path which both leaf nodes belong to
    * @param conflicts appended to if there is an unresolvable conflict
    * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
