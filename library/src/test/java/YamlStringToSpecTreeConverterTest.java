@@ -53,7 +53,7 @@ class YamlStringToSpecTreeConverterTest {
   }
 
   @Test
-  void testConvertEmptyStringToEmptyMap() throws FileNotFoundException {
+  void testConvertEmptyStringToEmptyMap() {
     Map<String, Object> expected = new LinkedHashMap<>();
 
     assertThat(YamlStringToSpecTreeConverter.convertYamlStringToSpecTree("")).isEqualTo(expected);

@@ -25,17 +25,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class MapUtilsTest {
-  YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
-
-  @BeforeEach
-  void init() {
-    yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
-  }
-
   @Test
-  void testGetKeypathsFromMap() throws FileNotFoundException, UnableToUnionException {
+  void testGetKeypathsFromMap() throws FileNotFoundException {
     Map<String, Object> map1 =
-        yamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/metadata.yaml");
+        YamlStringToSpecTreeConverter.convertYamlFileToSpecTree("src/test/resources/metadata.yaml");
     HashSet<String> actual = new HashSet<>();
 
     HashSet<String> expected = new HashSet<>();
@@ -45,7 +38,7 @@ class MapUtilsTest {
     expected.add("[info, title]");
     expected.add("[info, license, name]");
 
-    MapUtils.getKeypathsFromMap(map1, new Stack<String>(), actual);
+    MapUtils.getKeypathsFromMap(map1, new Stack<>(), actual);
 
     assertThat(actual).isEqualTo(expected);
   }
