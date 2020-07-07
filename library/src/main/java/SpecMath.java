@@ -65,7 +65,7 @@ public class SpecMath {
     LinkedHashMap<String, Object> mergedMap =
         specTreesUnionizer.union(spec1map, spec2map, unionizerUnionParams);
 
-    var specTreeToYamlStringsConverter = new SpecTreeToYamlStringsConverter();
+    var specTreeToYamlStringsConverter = new SpecTreeToYamlStringConverter();
 
     return specTreeToYamlStringsConverter.convertSpecTreeToYamlString(mergedMap);
   }
@@ -90,7 +90,7 @@ public class SpecMath {
     LinkedHashMap<String, Object> overlayedMap =
         specTreesUnionizer.applyOverlay(overlayMap, spec1map);
 
-    var specTreeToYamlStringsConverter = new SpecTreeToYamlStringsConverter();
+    var specTreeToYamlStringsConverter = new SpecTreeToYamlStringConverter();
     return specTreeToYamlStringsConverter.convertSpecTreeToYamlString(overlayedMap);
   }
 }
