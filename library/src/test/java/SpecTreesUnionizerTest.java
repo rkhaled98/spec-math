@@ -10,12 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SpecTreesUnionizerTest {
-  SpecTreesUnionizer specTreesUnionizer;
   YamlStringToSpecTreeConverter yamlStringToSpecTreeConverter;
 
   @BeforeEach
   void init() {
-    specTreesUnionizer = new SpecTreesUnionizer();
     yamlStringToSpecTreeConverter = new YamlStringToSpecTreeConverter();
   }
 
@@ -32,7 +30,7 @@ class SpecTreesUnionizerTest {
     UnionConflictException e =
         assertThrows(
             UnionConflictException.class,
-            () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+            () -> SpecTreesUnionizer.union(map1, map2, unionizerUnionParams));
 
     ArrayList<Conflict> expected = new ArrayList<>();
     expected.add(
@@ -62,7 +60,7 @@ class SpecTreesUnionizerTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/simplepetstoremerged.yaml");
 
-    assertThat(specTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
+    assertThat(SpecTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
   }
 
   @Test
@@ -85,7 +83,7 @@ class SpecTreesUnionizerTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/conflictMerged.yaml");
 
-    assertThat(specTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
+    assertThat(SpecTreesUnionizer.union(map1, map2, unionizerUnionParams)).isEqualTo(expected);
   }
 
   @Test
@@ -106,7 +104,7 @@ class SpecTreesUnionizerTest {
 
     assertThrows(
         UnionConflictException.class,
-        () -> specTreesUnionizer.union(map1, map2, unionizerUnionParams));
+        () -> SpecTreesUnionizer.union(map1, map2, unionizerUnionParams));
   }
 
   @Test
@@ -123,9 +121,9 @@ class SpecTreesUnionizerTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/noConflictMerged.yaml");
 
-    Map<String, Object> actual = specTreesUnionizer.union(map1, map2);
+    Map<String, Object> actual = SpecTreesUnionizer.union(map1, map2);
 
-    assertThat(specTreesUnionizer.union(map1, map2)).isEqualTo(expected);
+    assertThat(SpecTreesUnionizer.union(map1, map2)).isEqualTo(expected);
   }
 
   @Test
@@ -136,6 +134,6 @@ class SpecTreesUnionizerTest {
     map1.put("samekey", new LinkedHashMap<String, Object>());
     map2.put("samekey", "not a map");
 
-    assertThrows(UnexpectedDataException.class, () -> specTreesUnionizer.union(map1, map2));
+    assertThrows(UnexpectedDataException.class, () -> SpecTreesUnionizer.union(map1, map2));
   }
 }

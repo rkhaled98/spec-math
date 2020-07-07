@@ -25,22 +25,6 @@ import java.util.Stack;
 public class SpecTreesUnionizer {
 
   /**
-   * Performs a union on {@code map1} and {@code map2} and returns the result.
-   *
-   * @param map1 the map which {@code map2} is merged into. {@code map1} will contain the result of
-   *     the union.
-   * @param map2 the map to merge into {@code map1}
-   * @return the result of a union on {@code map1} and {@code map2}
-   */
-  public LinkedHashMap<String, Object> union(
-      LinkedHashMap<String, Object> map1, LinkedHashMap<String, Object> map2)
-      throws UnionConflictException, UnexpectedDataException {
-    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
-
-    return union(map1, map2, unionizerUnionParams);
-  }
-
-  /**
    * Performs a union on {@code map1} and {@code map2} with the given {@code unionizerUnionParams}
    * and returns the result.
    *
@@ -50,7 +34,7 @@ public class SpecTreesUnionizer {
    * @return the result of a union on {@code map1} and {@code map2} with options from {@code
    *     unionizerUnionParams} applied
    */
-  public LinkedHashMap<String, Object> union(
+  static LinkedHashMap<String, Object> union(
       LinkedHashMap<String, Object> map1,
       LinkedHashMap<String, Object> map2,
       UnionizerUnionParams unionizerUnionParams)
@@ -80,6 +64,22 @@ public class SpecTreesUnionizer {
   }
 
   /**
+   * Performs a union on {@code map1} and {@code map2} and returns the result.
+   *
+   * @param map1 the map which {@code map2} is merged into. {@code map1} will contain the result of
+   *     the union.
+   * @param map2 the map to merge into {@code map1}
+   * @return the result of a union on {@code map1} and {@code map2}
+   */
+  static LinkedHashMap<String, Object> union(
+      LinkedHashMap<String, Object> map1, LinkedHashMap<String, Object> map2)
+      throws UnionConflictException, UnexpectedDataException {
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
+
+    return union(map1, map2, unionizerUnionParams);
+  }
+
+  /**
    * Performs a union on {@code defaults} and {@code map2} and returns the result. Conflicts are
    * resolved by using the {@code defaults} map as priority.
    *
@@ -89,7 +89,7 @@ public class SpecTreesUnionizer {
    * @return the result of a union on {@code defaults} and {@code map2}, where conflicts are
    *     resolved by using the {@code defaults} map as priority.
    */
-  public LinkedHashMap<String, Object> applyOverlay(
+   static LinkedHashMap<String, Object> applyOverlay(
       LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2)
       throws UnexpectedDataException {
     return union(
@@ -109,7 +109,7 @@ public class SpecTreesUnionizer {
    * @param conflicts an ArrayList passed by reference, which gets updated based on the conflicts
    *     which do not occur thanks to the default map
    */
-  private void removeConflictsFixedByDefaults(
+   private static void removeConflictsFixedByDefaults(
       LinkedHashMap<String, Object> defaults, ArrayList<Conflict> conflicts) {
 
     var defaultKeypaths = new HashSet<String>();
@@ -134,7 +134,7 @@ public class SpecTreesUnionizer {
    * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
    * @return the result of union on {@code map1} and {@code map2}
    */
-  private LinkedHashMap<String, Object> union(
+  private static LinkedHashMap<String, Object> union(
       LinkedHashMap<String, Object> map1,
       LinkedHashMap<String, Object> map2,
       boolean map1IsDefault,
@@ -198,7 +198,7 @@ public class SpecTreesUnionizer {
    * @param valueMap2 subtree 2, to be processed further
    * @param valueMap1 subtree 1, to be processed further
    */
-  private void processUnequalSubtrees(
+  private static void processUnequalSubtrees(
       LinkedHashMap<String, Object> map1,
       boolean map1IsDefault,
       Stack<String> keypath,
@@ -231,7 +231,7 @@ public class SpecTreesUnionizer {
    * @param conflicts appended to if there is an unresolvable conflict
    * @param conflictResolutions a map which can provide conflict resolutions based on keypaths
    */
-  private void processUnequalLeafNodes(
+  private static void processUnequalLeafNodes(
       LinkedHashMap<String, Object> map1,
       String key,
       Object value1,
