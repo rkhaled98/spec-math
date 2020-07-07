@@ -78,7 +78,7 @@ public class CliEntrypoint implements Runnable {
       System.out.println(output);
     } catch (IOException e) {
       e.printStackTrace();
-    } catch (UnableToUnionException e){ ;
+    } catch (UnionConflictException e){ ;
       System.out.println("couldnt do the operation, there was a conflict");
       System.out.println(e.getConflicts());
     }

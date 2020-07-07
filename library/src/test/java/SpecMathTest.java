@@ -9,7 +9,8 @@ import org.junit.jupiter.api.Test;
 
 class SpecMathTest {
   @Test
-  void testUnionTwoStringsNoConflicts() throws IOException, UnableToUnionException {
+  void testUnionTwoStringsNoConflicts()
+      throws IOException, UnionConflictException, UnexpectedDataException {
     String spec1String = Files.readString(Path.of("src/test/resources/noConflict1.yaml"));
     String spec2String = Files.readString(Path.of("src/test/resources/noConflict2.yaml"));
 
@@ -25,8 +26,8 @@ class SpecMathTest {
     String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
     String spec2String = Files.readString(Path.of("src/test/resources/elgoogBilling.yaml"));
 
-    UnableToUnionException e =
-        assertThrows(UnableToUnionException.class, () -> SpecMath.union(spec1String, spec2String));
+    UnionConflictException e =
+        assertThrows(UnionConflictException.class, () -> SpecMath.union(spec1String, spec2String));
 
     ArrayList<Conflict> expected = new ArrayList<>();
     expected.add(
@@ -41,7 +42,8 @@ class SpecMathTest {
   }
 
   @Test
-  void testUnionTwoStringsWithDefaults() throws IOException, UnableToUnionException {
+  void testUnionTwoStringsWithDefaults()
+      throws IOException, UnionConflictException, UnexpectedDataException {
     String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
     String spec2String = Files.readString(Path.of("src/test/resources/elgoogBilling.yaml"));
     String defaults = Files.readString(Path.of("src/test/resources/elgoogMetadata.yaml"));
@@ -56,7 +58,8 @@ class SpecMathTest {
   }
 
   @Test
-  void testUnionTwoEqualStringsEqualsOriginalString() throws IOException, UnableToUnionException {
+  void testUnionTwoEqualStringsEqualsOriginalString()
+      throws IOException, UnionConflictException, UnexpectedDataException {
     String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
     String spec2String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
     String actual = SpecMath.union(spec1String, spec2String);
@@ -66,7 +69,7 @@ class SpecMathTest {
   }
 
   @Test
-  void testApplyOverlay() throws IOException, UnableToUnionException {
+  void testApplyOverlay() throws IOException, UnionConflictException, UnexpectedDataException {
     String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
     String overlay = Files.readString(Path.of("src/test/resources/elgoogMetadata.yaml"));
     String actual = SpecMath.applyOverlay(overlay, spec1String);

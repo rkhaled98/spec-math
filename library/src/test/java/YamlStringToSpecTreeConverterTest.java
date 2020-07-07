@@ -76,6 +76,10 @@ class YamlStringToSpecTreeConverterTest {
     expected.put("openapi", null);
     expected.put("info", null);
 
+    var actual = YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+        "src/test/resources/order.yaml");
+
+    System.out.println(actual.get("get"));
     assertThat(
             YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
                 "src/test/resources/order.yaml"))

@@ -11,23 +11,35 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   /**
-   * Converts a spec tree represented as a {@code LinkedHashMap} to a YAML string.
+   * Serializes a spec tree represented as a {@code LinkedHashMap} into a YAML string.
    *
-   * @param yamlMap a spec tree which is a LinkedHashMap which String keys and Object values
-   * @return a YAML string which represents {@code yamlMap}
+   * @param yamlMap a spec tree which is a LinkedHashMap with String keys and Object values
+   * @return a YAML string which represents the serialization of {@code yamlMap} as a YAML string
    */
-  public String convertSpecTreeToYamlString(LinkedHashMap<String, Object> yamlMap) {
+  public String convertSpecTreeToYamlString(LinkedHashMap<String, Object> yamlMap)
+      throws UnexpectedDataException {
     return convertSpecTreeToYamlString(yamlMap, 0, false);
   }
 
+  /**
+   * Helper function for Serializing a spec tree represented as a {@code LinkedHashMap} to a YAML
+   * string.
+   *
+   * @param yamlMap a spec tree which is a LinkedHashMap with String keys and Object values
+   * @param level the current traversal level, which influences how many spaces to print out
+   * @param firstListElement a boolean which indicates whether or not current element in the loop is
+   *     the first element of a list, which needs to be processed in a special way
+   * @return a YAML string which represents the serialization of {@code yamlMap} as a YAML string
+   */
   private String convertSpecTreeToYamlString(
-      LinkedHashMap<String, Object> map, int level, boolean firstListElement) {
+      LinkedHashMap<String, Object> yamlMap, int level, boolean firstListElement)
+      throws UnexpectedDataException {
     StringBuilder str = new StringBuilder();
-    for (Map.Entry<String, Object> entry : map.entrySet()) {
+    for (Map.Entry<String, Object> entry : yamlMap.entrySet()) {
       String key = entry.getKey();
       Object value = entry.getValue();
 
-      firstListElement = handleFirstElementSpacing(level, firstListElement, str);
+      firstListElement = handleFirstListElementSpacing(level, firstListElement, str);
 
       handleKey(str, key);
 
@@ -37,6 +49,8 @@ public class SpecTreeToYamlStringsConverter {
         handleListValues(level, str, ObjectCaster.castObjectToListOfObjects(value));
       } else if (TypeChecker.isObjectPrimitive(value)) {
         handlePrimitiveValue(str, key, value);
+      } else {
+        throw new UnexpectedDataException("Unexpected Data During Serialization");
       }
     }
 
@@ -44,41 +58,16 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   /**
-   * Processes and appends the elements in a list to the StringBuilder.
+   * Appends spaces according to the {@code level} if the current element is not the first in a
+   * list. Returns the new status of {@code firstListElement}.
    *
-   * @param level the current traversal level, which indicates how many spaces to print out
+   * @param level the current traversal level, which influences how many spaces to print out
+   * @param firstListElement a boolean which indicates whether or not current element in the loop is
+   *     the first element of a list, which needs to be processed in a special way
    * @param str the StringBuilder which we append to during the traversal
-   * @param value the list of values to process
+   * @return {@code false} if {@code firstListElement} was initially true. Otherwise it returns true
    */
-  private void handleListValues(int level, StringBuilder str, List<Object> value) {
-    int listLevel = level + 1;
-
-    str.append("\n");
-    for (int i = 0; i < value.size(); i++) {
-      str.append(spaces(listLevel));
-      str.append("- ");
-
-      Object element = value.get(i);
-
-      if (TypeChecker.isObjectPrimitive(element)) {
-        str.append(String.format("%s\n", element));
-      } else if (TypeChecker.isObjectMap(element)) {
-        LinkedHashMap<String, Object> elementMap = ObjectCaster.castObjectToStringObjectMap(element);
-        str.append(convertSpecTreeToYamlString(elementMap, listLevel + 1, true));
-      }
-    }
-  }
-
-  /**
-   * @param level the current traversal level, which indicates how many spaces to print out
-   * @param firstListElement a boolean which indicates whether or not current element in the loop
-   *                         is the first element of a list, which needs to be processed in a
-   *                         special way
-   * @param str the StringBuilder which we append to during the traversal
-   * @return {@code false if {@code firstListElement} was initially true. Otherwise it
-   *     returns true
-   */
-  private boolean handleFirstElementSpacing(
+  private boolean handleFirstListElementSpacing(
       int level, boolean firstListElement, StringBuilder str) {
     if (!firstListElement) {
       str.append(spaces(level));
@@ -89,15 +78,15 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   /**
-   * Appends the a key to the StringBuilder.
+   * Appends the {@code key} to the StringBuilder.
    *
    * @param str the StringBuilder which we append to during the traversal
    * @param key the key which we want to append to the StringBuilder, which is handled in special
    *     ways depending on the key
    */
   private void handleKey(StringBuilder str, String key) {
-    // the key is a digit, which is surrounded by single quotes
     if ((key.chars().allMatch(Character::isDigit))) {
+      // the key is a digit, which should be  surrounded by single quotes
       str.append(String.format("'%s':", key));
     } else {
       str.append(String.format("%s:", key));
@@ -105,7 +94,7 @@ public class SpecTreeToYamlStringsConverter {
   }
 
   /**
-   * Appends a primitive value to the StringBuilder.
+   * Appends a primitive {@code value} to the StringBuilder.
    *
    * @param str the StringBuilder which we append to during the traversal
    * @param key the key in the map which corresponds to the value, used for special handling of
@@ -128,11 +117,40 @@ public class SpecTreeToYamlStringsConverter {
    * @param str the StringBuilder which we append to during the traversal
    * @param value the map value to process further
    */
-  private void handleMapValue(int level, StringBuilder str, LinkedHashMap<String, Object> value) {
+  private void handleMapValue(int level, StringBuilder str, LinkedHashMap<String, Object> value)
+      throws UnexpectedDataException {
     LinkedHashMap<String, Object> valueMap = value;
 
     str.append("\n");
     str.append(convertSpecTreeToYamlString(valueMap, level + 1, false));
+  }
+
+  /**
+   * Processes and appends the elements in a list to the StringBuilder.
+   *
+   * @param level the current traversal level, which indicates how many spaces to print out
+   * @param str the StringBuilder which we append to during the traversal
+   * @param value the list of values to process
+   */
+  private void handleListValues(int level, StringBuilder str, List<Object> value)
+      throws UnexpectedDataException {
+    int listLevel = level + 1;
+
+    str.append("\n");
+    for (int i = 0; i < value.size(); i++) {
+      str.append(spaces(listLevel));
+      str.append("- ");
+
+      Object element = value.get(i);
+
+      if (TypeChecker.isObjectPrimitive(element)) {
+        str.append(String.format("%s\n", element));
+      } else if (TypeChecker.isObjectMap(element)) {
+        LinkedHashMap<String, Object> elementMap =
+            ObjectCaster.castObjectToStringObjectMap(element);
+        str.append(convertSpecTreeToYamlString(elementMap, listLevel + 1, true));
+      }
+    }
   }
 
   /** Returns a string with {@code level} * {@code this.indent} spaces. */

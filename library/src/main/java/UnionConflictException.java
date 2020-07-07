@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
-public class UnableToUnionException extends Exception {
+public class UnionConflictException extends Exception {
   private ArrayList<Conflict> conflicts;
 
-  public UnableToUnionException(ArrayList<Conflict> conflicts) {
+  public UnionConflictException(ArrayList<Conflict> conflicts) {
     this.conflicts = conflicts;
   }
 

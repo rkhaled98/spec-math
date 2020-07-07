@@ -8,17 +8,19 @@ public class SpecMath {
    *
    * <p>This operation will attempt to combine {@code spec1} and {@code spec2} using the logic
    * provided in the SpecTreeUnionizer class. Since no arguments are provided, it will attempt the
-   * union and if any conflicts are found an {@code UnableToUnionException} will be thrown.
+   * union and if any conflicts are found an {@code UnionConflictException} will be thrown.
    *
-   * @param spec1 the first spec to be merged
-   * @param spec2 the second spec to be merged
-   * @return the result of the union on spec1 and spec2, as a YAML string
-   * @throws IOException if there was a parsing issue
-   * @throws UnableToUnionException if there was a conflict in the union process, i.e. when two
-   *     keypaths have the same value
+   * @param spec1 the first spec to be merged.
+   * @param spec2 the second spec to be merged.
+   * @return the result of the union on spec1 and spec2, as a YAML string.
+   * @throws IOException if there was a parsing issue.
+   * @throws UnionConflictException if there was a conflict in the union process, i.e. when two
+   *     keypaths have the same value.
+   * @throws UnexpectedDataException either an unexpected type was met, or one map had a different
+   *     type (primitive, map, list) as a value compared to the other map.
    */
   public static String union(String spec1, String spec2)
-      throws IOException, UnableToUnionException {
+      throws IOException, UnionConflictException, UnexpectedDataException {
     UnionOptions params = UnionOptions.builder().build();
 
     return union(spec1, spec2, params);
@@ -28,18 +30,20 @@ public class SpecMath {
    * Performs the union operation on two specs represented as strings. If {@code UnionOptions} are
    * provided, then it will apply them as is appropriate based on the logic in the {@code
    * SpecTreeUnionizer} class. If {@code UnionOptions} cannot resolve the conflict then an {@code
-   * UnableToUnionException} will be thrown.
+   * UnionConflictException} will be thrown.
    *
    * @param spec1
    * @param spec2
    * @param unionOptions
    * @return the result of the union on spec1 and spec2, as a YAML string
    * @throws IOException if there was a parsing issue
-   * @throws UnableToUnionException if there was a conflict in the union process, i.e. when two
+   * @throws UnionConflictException if there was a conflict in the union process, i.e. when two
    *     keypaths have the same value
+   * @throws UnexpectedDataException either an unexpected type was met, or one map had a different
+   *     type (primitive, map, list) as a value compared to the other map.
    */
   public static String union(String spec1, String spec2, UnionOptions unionOptions)
-      throws IOException, UnableToUnionException {
+      throws IOException, UnionConflictException, UnexpectedDataException {
     var conflictStringToConflictMapConverter = new ConflictStringToConflictMapConverter();
     HashMap<String, Object> conflictResolutionsMap =
         conflictStringToConflictMapConverter.convertConflictResolutionsStringToConflictMap(
@@ -72,9 +76,11 @@ public class SpecMath {
    *
    * @param spec1
    * @param overlay
-   * @return
+   * @return the result of applying {@code overlay} to {@code spec1}, as a YAML string
+   * @throws UnexpectedDataException either an unexpected type was met, or one map had a different
+   *     type (primitive, map, list) as a value compared to the other map.
    */
-  public static String applyOverlay(String overlay, String spec1) throws IOException {
+  public static String applyOverlay(String overlay, String spec1) throws UnexpectedDataException {
     LinkedHashMap<String, Object> spec1map =
         YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
     LinkedHashMap<String, Object> overlayMap =
