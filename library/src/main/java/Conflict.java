@@ -2,6 +2,7 @@ import java.util.Objects;
 
 public class Conflict {
   private String keypath;
+
   private Object optionA;
   private Object optionB;
   private Object resolvedValue;
@@ -21,6 +22,14 @@ public class Conflict {
     this.keypath = keypath;
     this.optionA = optionA;
     this.optionB = optionB;
+  }
+
+  public Object getOptionA() {
+    return optionA;
+  }
+
+  public Object getOptionB() {
+    return optionB;
   }
 
   public String getKeypath() {

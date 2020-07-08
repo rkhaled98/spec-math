@@ -19,7 +19,6 @@ public class ConflictStringToConflictMapConverter {
   public HashMap<String, Object> convertConflictResolutionsStringToConflictMap(
       String conflictResolutions) throws IOException {
     var mapper = new ObjectMapper();
-    mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 
     HashMap<String, Object> conflictMap = new HashMap<>();
 
