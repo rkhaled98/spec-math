@@ -55,21 +55,21 @@ class SpecMathTest {
     assertThat(actual).isEqualTo(expected);
   }
 
-  @Test
-  void testUnionTwoStringsWithDefaultsAndConflictResolutions()
-      throws IOException, UnionConflictException, UnexpectedDataException {
-    String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
-    String spec2String = Files.readString(Path.of("src/test/resources/elgoogBilling.yaml"));
-    String defaults = Files.readString(Path.of("src/test/resources/elgoogMetadata.yaml"));
-
-    UnionOptions unionOptions = UnionOptions.builder().defaults(defaults).build();
-    String actual = SpecMath.union(spec1String, spec2String, unionOptions);
-
-    String expected =
-        Files.readString(Path.of("src/test/resources/elgoogBillingAndMarketingMetadataUnion.yaml"));
-
-    assertThat(actual).isEqualTo(expected);
-  }
+//  @Test
+//  void testUnionTwoStringsWithDefaultsAndConflictResolutions()
+//      throws IOException, UnionConflictException, UnexpectedDataException {
+//    String spec1String = Files.readString(Path.of("src/test/resources/elgoogMarketing.yaml"));
+//    String spec2String = Files.readString(Path.of("src/test/resources/elgoogBilling.yaml"));
+//    String defaults = Files.readString(Path.of("src/test/resources/elgoogMetadata.yaml"));
+//
+//    UnionOptions unionOptions = UnionOptions.builder().defaults(defaults).build();
+//    String actual = SpecMath.union(spec1String, spec2String, unionOptions);
+//
+//    String expected =
+//        Files.readString(Path.of("src/test/resources/elgoogBillingAndMarketingMetadataUnion.yaml"));
+//
+//    assertThat(actual).isEqualTo(expected);
+//  }
 
   @Test
   void testUnionTwoEqualStringsEqualsOriginalString()

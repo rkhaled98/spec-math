@@ -32,12 +32,13 @@ class SpecTreesUnionizerTest {
             UnionConflictException.class,
             () -> SpecTreesUnionizer.union(map1, map2, unionizerUnionParams));
 
-    ArrayList<Conflict> expected = new ArrayList<>();
-    expected.add(
+    ArrayList<Conflict> expectedConflicts = new ArrayList<>();
+    expectedConflicts.add(
         new Conflict("[info, title]", "Swagger Petstore Platform", "Swagger Petstore Marketing"));
-    expected.add(new Conflict("[paths, /pets, get, summary]", "List all pets", "List every pet"));
+    expectedConflicts
+        .add(new Conflict("[paths, /pets, get, summary]", "List all pets", "List every pet"));
 
-    assertThat(e.getConflicts()).isEqualTo(expected);
+    assertThat(e.getConflicts()).isEqualTo(expectedConflicts);
   }
 
   @Test
