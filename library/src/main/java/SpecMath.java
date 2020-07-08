@@ -7,8 +7,8 @@ public class SpecMath {
    * Performs the union operation on two specs represented as strings.
    *
    * <p>This operation will attempt to combine {@code spec1} and {@code spec2} using the logic
-   * provided in the SpecTreeUnionizer class. Since no arguments are provided, it will attempt the
-   * union and if any conflicts are found an {@code UnionConflictException} will be thrown.
+   * provided in the SpecTreeUnionizer class. Since no special options are provided, it will attempt
+   * the union and if any conflicts are found a {@code UnionConflictException} will be thrown.
    *
    * @param spec1 the first spec to be merged.
    * @param spec2 the second spec to be merged.
@@ -32,9 +32,9 @@ public class SpecMath {
    * SpecTreeUnionizer} class. If {@code UnionOptions} cannot resolve the conflict then an {@code
    * UnionConflictException} will be thrown.
    *
-   * @param spec1
-   * @param spec2
-   * @param unionOptions
+   * @param spec1 an OpenAPI specification represented as a YAML string
+   * @param spec2 an OpenAPI specification represented as a YAML string
+   * @param unionOptions a set of special options which can be applied during the union
    * @return the result of the union on spec1 and spec2, as a YAML string
    * @throws IOException if there was a parsing issue
    * @throws UnionConflictException if there was a conflict in the union process, i.e. when two
@@ -65,7 +65,6 @@ public class SpecMath {
         SpecTreesUnionizer.union(spec1map, spec2map, unionizerUnionParams);
 
     var specTreeToYamlStringsConverter = new SpecTreeToYamlStringConverter();
-
     return specTreeToYamlStringsConverter.convertSpecTreeToYamlString(mergedMap);
   }
 
@@ -73,15 +72,16 @@ public class SpecMath {
    * Performs the overlay operation on two specs represented as strings by calling the {@code
    * applyOverlay} function of the {@code SpecTreeUnionizer} class.
    *
-   * @param spec1
-   * @param overlay
-   * @return the result of applying {@code overlay} to {@code spec1}, as a YAML string
+   * @param spec a spec to apply the {@code overlay} to
+   * @param overlay a spec fragment which will take priority over {@code spec} during the union
+   *     process
+   * @return the result of applying {@code overlay} to {@code spec}, as a YAML string
    * @throws UnexpectedDataException either an unexpected type was met, or one map had a different
    *     type (primitive, map, list) as a value compared to the other map.
    */
-  public static String applyOverlay(String overlay, String spec1) throws UnexpectedDataException {
+  public static String applyOverlay(String overlay, String spec) throws UnexpectedDataException {
     LinkedHashMap<String, Object> spec1map =
-        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec);
     LinkedHashMap<String, Object> overlayMap =
         YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(overlay);
 

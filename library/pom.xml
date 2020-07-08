@@ -30,12 +30,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.26</version>
-    </dependency>
-
-    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
       <version>2.9.8</version>
@@ -52,6 +46,7 @@
       <artifactId>auto-value-annotations</artifactId>
       <version>1.6.2</version>
     </dependency>
+
     <dependency>
       <groupId>com.google.auto.value</groupId>
       <artifactId>auto-value</artifactId>
@@ -60,37 +55,11 @@
     </dependency>
 
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
       <version>1.0.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>28.1-android</version>
-      <scope>compile</scope>
-    </dependency>
-    <!--    <dependency>-->
-<!--      <groupId>org.jetbrains</groupId>-->
-<!--      <artifactId>annotations</artifactId>-->
-<!--      <version>RELEASE</version>-->
-<!--      <scope>compile</scope>-->
-<!--    </dependency>-->
-
-    <dependency>
-      <groupId>com.esotericsoftware.yamlbeans</groupId>
-      <artifactId>yamlbeans</artifactId>
-      <version>1.14</version>
-    </dependency>
-
   </dependencies>
 
   <build>

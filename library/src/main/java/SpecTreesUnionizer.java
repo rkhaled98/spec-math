@@ -23,6 +23,21 @@ import java.util.Map;
 import java.util.Stack;
 
 public class SpecTreesUnionizer {
+  /**
+   * Performs a union on {@code map1} and {@code map2} and returns the result.
+   *
+   * @param map1 the map which {@code map2} is merged into. {@code map1} will contain the result of
+   *     the union.
+   * @param map2 the map to merge into {@code map1}
+   * @return the result of a union on {@code map1} and {@code map2}
+   */
+  static LinkedHashMap<String, Object> union(
+      LinkedHashMap<String, Object> map1, LinkedHashMap<String, Object> map2)
+      throws UnionConflictException, UnexpectedDataException {
+    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
+
+    return union(map1, map2, unionizerUnionParams);
+  }
 
   /**
    * Performs a union on {@code map1} and {@code map2} with the given {@code unionizerUnionParams}
@@ -31,6 +46,7 @@ public class SpecTreesUnionizer {
    * @param map1 the map which {@code map2} is merged into. {@code map1} will contain the result of
    *     the union.
    * @param map2 the map to merge into {@code map1}
+   * @param unionizerUnionParams a set of special options which can be applied during the union
    * @return the result of a union on {@code map1} and {@code map2} with options from {@code
    *     unionizerUnionParams} applied
    */
@@ -64,19 +80,21 @@ public class SpecTreesUnionizer {
   }
 
   /**
-   * Performs a union on {@code map1} and {@code map2} and returns the result.
+   * Removes conflicts from {@code conflicts} parameter passed by reference if the conflicting
+   * keypath is also a path in the defaults map.
    *
-   * @param map1 the map which {@code map2} is merged into. {@code map1} will contain the result of
-   *     the union.
-   * @param map2 the map to merge into {@code map1}
-   * @return the result of a union on {@code map1} and {@code map2}
+   * @param defaults a map which contains defaults to apply to some output of a union
+   * @param conflicts an ArrayList passed by reference, which gets updated based on the conflicts
+   *     which do not occur thanks to the default map
    */
-  static LinkedHashMap<String, Object> union(
-      LinkedHashMap<String, Object> map1, LinkedHashMap<String, Object> map2)
-      throws UnionConflictException, UnexpectedDataException {
-    UnionizerUnionParams unionizerUnionParams = UnionizerUnionParams.builder().build();
+  private static void removeConflictsFixedByDefaults(
+      LinkedHashMap<String, Object> defaults, ArrayList<Conflict> conflicts) {
 
-    return union(map1, map2, unionizerUnionParams);
+    var defaultKeypaths = new HashSet<String>();
+
+    MapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
+
+    conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
   }
 
   /**
@@ -84,12 +102,12 @@ public class SpecTreesUnionizer {
    * resolved by using the {@code defaults} map as priority.
    *
    * @param defaults the map which {@code map2} is merged into. {@code defaults} will contain the
-   *     result of the union and will take priority over {@code map2} in the case of conflicts.=
+   *     result of the union and will take priority over {@code map2} in the case of conflicts.
    * @param map2 the map to merge into {@code defaults}
    * @return the result of a union on {@code defaults} and {@code map2}, where conflicts are
    *     resolved by using the {@code defaults} map as priority.
    */
-   static LinkedHashMap<String, Object> applyOverlay(
+  static LinkedHashMap<String, Object> applyOverlay(
       LinkedHashMap<String, Object> defaults, LinkedHashMap<String, Object> map2)
       throws UnexpectedDataException {
     return union(
@@ -99,24 +117,6 @@ public class SpecTreesUnionizer {
         new Stack<String>(),
         new ArrayList<Conflict>(),
         new HashMap<String, Object>());
-  }
-
-  /**
-   * Removes conflicts from {@code conflicts} parameter passed by reference if the conflicting
-   * keypath is also a path in the defaults map.
-   *
-   * @param defaults a map which contains defaults to apply to some output of a union
-   * @param conflicts an ArrayList passed by reference, which gets updated based on the conflicts
-   *     which do not occur thanks to the default map
-   */
-   private static void removeConflictsFixedByDefaults(
-      LinkedHashMap<String, Object> defaults, ArrayList<Conflict> conflicts) {
-
-    var defaultKeypaths = new HashSet<String>();
-
-    MapUtils.getKeypathsFromMap(defaults, new Stack<>(), defaultKeypaths);
-
-    conflicts.removeIf(conflict -> defaultKeypaths.contains(conflict.getKeypath()));
   }
 
   /**
