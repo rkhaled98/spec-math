@@ -26,9 +26,9 @@ class SpecTreeFiltererTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/filtering/filteredMonolithicSpecWithSpecificPath.yaml");
     var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
-    assertEquals(
-        expected.get("paths"), actual.get("paths"));
-//    assertEquals(expected.get("components"), actual.get("components"));
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
   }
 
   @Test
@@ -54,9 +54,9 @@ class SpecTreeFiltererTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/filtering/filteredMonolithicSpecWithSpecificOperations.yaml");
     var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
-    assertEquals(
-        expected.get("paths"), actual.get("paths"));
-//    assertEquals(expected.get("components"), actual.get("components"));
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
   }
 
   @Test
@@ -82,9 +82,9 @@ class SpecTreeFiltererTest {
             "src/test/resources/filtering/filteredMonolithicSpecWithPublicTags.yaml");
 
     var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
-    assertEquals(
-        expected.get("paths"), actual.get("paths"));
-//    assertEquals(expected.get("components"), actual.get("components"));
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
   }
 
   @Test
@@ -116,9 +116,9 @@ class SpecTreeFiltererTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/filtering/filteredMonolithicSpecWithAllFilterCriteria.yaml");
     var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
-    assertEquals(
-        expected.get("paths"), actual.get("paths"));
-//    assertEquals(expected.get("components"), actual.get("components"));
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
   }
 
   @Test
@@ -131,8 +131,7 @@ class SpecTreeFiltererTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/filtering/filteringMonolithicSpec.yaml");
 
-    FilterCriteria filterCriteria =
-        FilterCriteria.builder().build();
+    FilterCriteria filterCriteria = FilterCriteria.builder().build();
 
     var listOfFilterCriteria = new ArrayList<FilterCriteria>();
     listOfFilterCriteria.add(filterCriteria);
@@ -141,9 +140,38 @@ class SpecTreeFiltererTest {
         YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
             "src/test/resources/filtering/filteringMonolithicSpec.yaml");
     var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
-    assertEquals(
-        expected.get("paths"), actual.get("paths"));
-//    assertEquals(expected.get("components"), actual.get("components"));
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
+  }
+
+  @Test
+  void filter_withPathsThatWouldHaveNestedComponents_returnsComponentDependencyTree()
+      throws FileNotFoundException, UnionConflictException, AllUnmatchedFilterException,
+          UnexpectedTypeException {
+    var specTreeFilterer = new SpecTreeFilterer();
+
+    LinkedHashMap<String, Object> map1 =
+        YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+            "src/test/resources/filtering/filteringMonolithicSpec.yaml");
+
+    var operations = new ArrayList<String>();
+    operations.add("get");
+
+    FilterCriteria filterCriteria =
+        FilterCriteria.builder().operations(operations).pathRegex("/pets").build();
+
+    var listOfFilterCriteria = new ArrayList<FilterCriteria>();
+    listOfFilterCriteria.add(filterCriteria);
+
+    LinkedHashMap<String, Object> expected =
+        YamlStringToSpecTreeConverter.convertYamlFileToSpecTree(
+            "src/test/resources/filtering/filteredMonolithicSpecWithOnlyPetsGet.yaml");
+
+    var actual = specTreeFilterer.filter(map1, listOfFilterCriteria);
+    assertThat(actual).isEqualTo(expected);
+    assertEquals(expected.get("paths"), actual.get("paths"));
+    assertEquals(expected.get("components"), actual.get("components"));
   }
 
   @Test
