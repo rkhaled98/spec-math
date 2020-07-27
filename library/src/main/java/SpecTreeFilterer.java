@@ -10,35 +10,32 @@ import java.util.Stack;
 public class SpecTreeFilterer {
 
   public static LinkedHashMap<String, Object> filter(
-      LinkedHashMap<String, Object> spec, ArrayList<FilterCriteria> filterCriteriaArrayList)
+      LinkedHashMap<String, Object> specToFilter, ArrayList<FilterCriteria> filterCriteriaArrayList)
       throws UnionConflictException, UnexpectedTypeException, AllUnmatchedFilterException {
-    var output = new LinkedHashMap<String, Object>();
+    var outputSpec = new LinkedHashMap<String, Object>();
 
     for (FilterCriteria filterCriteria : filterCriteriaArrayList) {
-      SpecTreesUnionizer.union(output, filterUsingSingleFilterCriteria(spec, filterCriteria));
+      SpecTreesUnionizer.union(outputSpec, filterUsingSingleFilterCriteria(specToFilter, filterCriteria));
     }
 
-    if (!output.containsKey("paths")
-        || ObjectCaster.castObjectToStringObjectMap(output.get("paths")).isEmpty()) {
+    if (!outputSpec.containsKey("paths")
+        || ObjectCaster.castObjectToStringObjectMap(outputSpec.get("paths")).isEmpty()) {
       throw new AllUnmatchedFilterException("The paths would be empty");
     }
 
-    LinkedHashMap<String, Object> components = getAllComponents(output);
+    LinkedHashMap<String, Object> components = getAllComponents(outputSpec);
 
     if (!components.isEmpty()) {
-      output.put("components", components.get("components"));
-    } else if (output.containsKey("components")) {
-      // not covered. this is a situation in which no refs are needed in the path. create this test!
-      output.remove("components");
-    }
+      outputSpec.put("components", components.get("components"));
+    } else outputSpec.remove("components");
 
-    return output;
+    return outputSpec;
   }
 
   private static LinkedHashMap<String, Object> filterUsingSingleFilterCriteria(
-      LinkedHashMap<String, Object> spec, FilterCriteria filterCriteria) {
+      LinkedHashMap<String, Object> specToFilter, FilterCriteria filterCriteria) {
     LinkedHashMap<String, Object> paths =
-        ObjectCaster.castObjectToStringObjectMap(spec.get("paths"));
+        ObjectCaster.castObjectToStringObjectMap(specToFilter.get("paths"));
 
     var outputEndpoints = new LinkedHashMap<String, Object>();
 
@@ -46,12 +43,10 @@ public class SpecTreeFilterer {
       processEndpoint(filterCriteria, outputEndpoints, endpointEntry);
     }
 
-//    if (!outputEndpoints.isEmpty()){
-    LinkedHashMap<String, Object> newSpec = new LinkedHashMap<>(spec);
-    newSpec.put("paths", outputEndpoints);
-//    spec.put("paths", outputEndpoints);
-//    }
-    return newSpec;
+    LinkedHashMap<String, Object> filteredSpec = new LinkedHashMap<>(specToFilter);
+    filteredSpec.put("paths", outputEndpoints);
+
+    return filteredSpec;
   }
 
   private static void processEndpoint(
@@ -87,17 +82,25 @@ public class SpecTreeFilterer {
       LinkedHashMap<String, Object> operationObject =
           ObjectCaster.castObjectToStringObjectMap(operationEntry.getValue());
 
-      List<Object> tags = ObjectCaster.castObjectToListOfObjects(operationObject.get("tags"));
+        List<Object> tags = ObjectCaster.castObjectToListOfObjects(operationObject.get("tags"));
 
-      if ((filterCriteria.tags().isEmpty() && filterCriteria.removableTags().isEmpty())) {
-        outputOperations.put(operation, operationObject);
-      } else {
-        // this is disjunction on the tags
-        for (Object tag : tags) {
-          if (processTag(
-              filterCriteria, outputOperations, operation, operationObject, tags, (String) tag)) {
-            break; // since its disjunction, one tag matched will be enough
-          }
+        if ((filterCriteria.tags().isEmpty() && filterCriteria.removableTags().isEmpty())) {
+          outputOperations.put(operation, operationObject);
+        } else {
+          processTags(filterCriteria, outputOperations, operation, operationObject, tags);
+        }
+    }
+  }
+
+  private static void processTags(FilterCriteria filterCriteria,
+      LinkedHashMap<String, Object> outputOperations, String operation,
+      LinkedHashMap<String, Object> operationObject, List<Object> tags) {
+    if (operationObject.containsKey("tags")){
+      // this is disjunction on the tags
+      for (Object tag : tags) {
+        if (processTag(
+            filterCriteria, outputOperations, operation, operationObject, tags, (String) tag)) {
+          break; // since its disjunction, one tag matched will be enough
         }
       }
     }
@@ -125,9 +128,6 @@ public class SpecTreeFilterer {
 
   private static LinkedHashMap<String, Object> getAllComponents(LinkedHashMap<String, Object> spec)
       throws UnionConflictException, UnexpectedTypeException {
-    int size = 0;
-
-    // get the initial hashset
 
     var keypaths = new HashSet<String>();
     addRefsInSubtreeToKeypaths(
@@ -135,6 +135,9 @@ public class SpecTreeFilterer {
 
     var outputComponents = new LinkedHashMap<String, Object>();
 
+    int size = 0;
+
+    // as soon as keypaths.size() == size, terminate because no new refs need to be looked for.
     while (keypaths.size() != size) {
       size = keypaths.size();
 
@@ -152,10 +155,8 @@ public class SpecTreeFilterer {
       String key = entry.getKey();
       Object value = entry.getValue();
       if (key.equals("$ref")) {
-        System.out.println("FOUND!S");
         String processedRefKeyPath = processRefKeyPath(value);
         if (!processedRefKeyPath.isEmpty()) {
-          System.out.println(processedRefKeyPath);
           refKeypaths.add(processedRefKeyPath);
         }
       } else if (TypeChecker.isObjectMap(value)) {
