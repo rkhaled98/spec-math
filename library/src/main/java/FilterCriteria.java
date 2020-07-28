@@ -1,9 +1,3 @@
-import com.google.auto.value.AutoValue;
-import java.util.ArrayList;
-import java.util.List;
-
-
-
 /*
 Copyright 2020 Google LLC
 
@@ -21,8 +15,10 @@ limitations under the License.
 */
 
 import com.google.auto.value.AutoValue;
+import java.util.ArrayList;
+import java.util.List;
 
-/** Used to provide additional parameters when calling functions of the SpecMath class. */
+/** Used to provide a piece of filtering criteria for the SpecTreeFilterer. */
 @AutoValue
 public abstract class FilterCriteria {
   public static Builder builder() {
@@ -32,13 +28,6 @@ public abstract class FilterCriteria {
         tags(new ArrayList<String>()).
         removableTags(new ArrayList<String>());
   }
-
-//  public class FilterCriteria {
-//    String pathRegex;
-//    List<String> operations;
-//    List<String> tags;
-//    List<String> removableTags;
-//  }
 
   public abstract String pathRegex();
   public abstract List<String> operations();
