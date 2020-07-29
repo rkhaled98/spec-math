@@ -14,9 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides functions for performing operations such as union and overlay on OpenAPI specifications
@@ -85,6 +91,31 @@ public class SpecMath {
         SpecTreesUnionizer.union(spec1map, spec2map, unionizerUnionParams);
 
     return SpecTreeToYamlStringConverter.convertSpecTreeToYamlString(unionResultMap);
+  }
+
+  public static String filter(String spec1, String filterCriteriaList)
+      throws IOException, UnionConflictException, AllUnmatchedFilterException,
+          UnexpectedTypeException {
+    LinkedHashMap<String, Object> spec1map =
+        YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(spec1);
+
+    var mapper = new ObjectMapper();
+
+    List<FilterCriteriaJson> filterCriteria =
+        mapper.readValue(filterCriteriaList, new TypeReference<List<FilterCriteriaJson>>() {});
+
+    var listOfFilterCriteria = filterCriteria.stream()
+        .map(filterCriteriaJson -> FilterCriteria.builder()
+            .operations(filterCriteriaJson.operations)
+            .pathRegex(filterCriteriaJson.pathRegex)
+            .removableTags(filterCriteriaJson.removableTags)
+            .tags(filterCriteriaJson.tags)
+            .build()).collect(Collectors.toCollection(ArrayList::new));
+
+    LinkedHashMap<String, Object> filterResultMap =
+        SpecTreeFilterer.filter(spec1map, listOfFilterCriteria);
+
+    return SpecTreeToYamlStringConverter.convertSpecTreeToYamlString(filterResultMap);
   }
 
   /**
