@@ -14,16 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.auto.value.AutoValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /** Used to provide a piece of filtering criteria for the SpecTreeFilterer. */
 @AutoValue
@@ -43,10 +36,6 @@ public abstract class FilterCriteria {
 
   @AutoValue.Builder
   public abstract static class Builder {
-    public static Builder builder() {
-      return new AutoValue_FilterCriteria.Builder();
-    }
-
     public abstract Builder pathRegex(String pathRegex);
     public abstract Builder operations(List<String> operations);
     public abstract Builder removableTags(List<String> removableTags);
@@ -55,3 +44,4 @@ public abstract class FilterCriteria {
     public abstract FilterCriteria build();
   }
 }
+
