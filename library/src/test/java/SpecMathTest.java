@@ -180,7 +180,7 @@ class SpecMathTest {
 
     assertThat(actual).isEqualTo(expected);
   }
-//
+
   @Test
   void filter_withSpecificOperations_succeeds()
       throws IOException, AllUnmatchedFilterException, UnionConflictException, UnexpectedTypeException {

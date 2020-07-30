@@ -131,24 +131,25 @@ public class SpecMath {
    * @throws UnexpectedTypeException if there was an issue when merging the results from each
    *     FilterCriteria
    */
-  public static String filter(String specToFilter, String filterCriteriaList, FilterOptions filterOptions)
+  public static String filter(
+      String specToFilter, String filterCriteriaList, FilterOptions filterOptions)
       throws IOException, UnionConflictException, AllUnmatchedFilterException,
           UnexpectedTypeException {
     var mapper = new ObjectMapper();
     List<FilterCriteriaJson> filterCriteria =
         mapper.readValue(filterCriteriaList, new TypeReference<List<FilterCriteriaJson>>() {});
 
-    var listOfFilterCriteria =
-        filterCriteria.stream()
-            .map(
-                filterCriteriaJson ->
-                    FilterCriteria.builder()
-                        .operations(filterCriteriaJson.operations)
-                        .pathRegex(filterCriteriaJson.pathRegex)
-                        .removableTags(filterCriteriaJson.removableTags)
-                        .tags(filterCriteriaJson.tags)
-                        .build())
-            .collect(Collectors.toCollection(ArrayList::new));
+    var listOfFilterCriteria = new ArrayList<FilterCriteria>();
+
+    for (FilterCriteriaJson filterCriteriaJson : filterCriteria) {
+      listOfFilterCriteria.add(
+          FilterCriteria.builder()
+              .operations(filterCriteriaJson.operations)
+              .pathRegex(filterCriteriaJson.pathRegex)
+              .removableTags(filterCriteriaJson.removableTags)
+              .tags(filterCriteriaJson.tags)
+              .build());
+    }
 
     return filter(specToFilter, listOfFilterCriteria, filterOptions);
   }
@@ -169,7 +170,8 @@ public class SpecMath {
    * @throws UnexpectedTypeException if there was an issue when merging the results from each
    *     FilterCriteria
    */
-  public static String filter(String specToFilter, List<FilterCriteria> filterCriteriaList, FilterOptions filterOptions)
+  public static String filter(
+      String specToFilter, List<FilterCriteria> filterCriteriaList, FilterOptions filterOptions)
       throws UnexpectedTypeException, UnionConflictException, AllUnmatchedFilterException {
     LinkedHashMap<String, Object> spec1map =
         YamlStringToSpecTreeConverter.convertYamlStringToSpecTree(specToFilter);
