@@ -16,6 +16,7 @@ limitations under the License.
 
 package org.specmath.library;
 
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -37,6 +38,7 @@ public class TypeChecker {
     return value instanceof String
         || value instanceof Boolean
         || value instanceof Number
+        || value instanceof Date
         || value instanceof Character;
   }
 }

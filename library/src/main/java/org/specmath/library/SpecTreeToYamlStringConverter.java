@@ -120,6 +120,10 @@ public class SpecTreeToYamlStringConverter {
     if (key.equals("$ref")) {
       // a "$ref" tag should be handled in a special way, with the value in double quotes.
       str.append(String.format(" \"%s\"\n", value));
+    } else if (value instanceof String && isNumeric((String)value)) {
+      str.append(String.format(" \"%s\"\n", value));
+    } else if (value instanceof String && ((String)value).isEmpty()) {
+      str.append(" \"\"\n");
     } else {
       str.append(String.format(" %s\n", value));
     }
@@ -137,8 +141,24 @@ public class SpecTreeToYamlStringConverter {
       throws UnexpectedTypeException {
     LinkedHashMap<String, Object> valueMap = value;
 
-    str.append("\n");
-    str.append(convertSpecTreeToYamlString(valueMap, level + 1, false));
+    if (value.isEmpty()){
+      str.append(" {}\n");
+    } else {
+      str.append("\n");
+      str.append(convertSpecTreeToYamlString(valueMap, level + 1, false));
+    }
+  }
+
+  public static boolean isNumeric(String strNum) {
+    if (strNum == null) {
+      return false;
+    }
+    try {
+      double d = Double.parseDouble(strNum);
+    } catch (NumberFormatException nfe) {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -160,11 +180,24 @@ public class SpecTreeToYamlStringConverter {
       Object element = value.get(i);
 
       if (TypeChecker.isObjectPrimitive(element)) {
-        str.append(String.format("%s\n", element));
+        if (element instanceof String && isNumeric((String)element)){
+          str.append(String.format("\"%s\"\n", element));
+        } else if (element instanceof String && ((String)element).isEmpty()) {
+          str.append(" \"\"\n");
+        }
+          else {
+          str.append(String.format("%s\n", element));
+        }
       } else if (TypeChecker.isObjectMap(element)) {
+
         LinkedHashMap<String, Object> elementMap =
             ObjectCaster.castObjectToStringObjectMap(element);
-        str.append(convertSpecTreeToYamlString(elementMap, listLevel + 1, true));
+
+        if (elementMap.isEmpty()){
+          str.append("{}");
+        } else {
+          str.append(convertSpecTreeToYamlString(elementMap, listLevel + 1, true));
+        }
       }
     }
   }
