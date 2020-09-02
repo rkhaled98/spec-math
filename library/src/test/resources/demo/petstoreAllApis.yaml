@@ -1,0 +1,108 @@
+openapi: 3.0.0
+info:
+  title: The Best Petstore APIs (preprod)
+  version: 1.0.0
+  description: An API for The Best Petstore
+servers:
+  - url: http://thebestpetstorepreprod.com/
+paths:
+  /billing/chargeCustomer/{customerId}:
+    post:
+      tags:
+        - internal
+      description: charge a customer with customerId
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: customer charged successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationSuccess"
+  /inventory/search/{productId}:
+    get:
+      tags:
+        - external
+      description: search inventory by productId
+      responses:
+        '200':
+          description: inventory result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+  /store/location/{zipcode}:
+    get:
+      tags:
+        - external
+      description: search stores by zipcode
+      responses:
+        '200':
+          description: store search result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreResult"
+  /store/location/{address}:
+    get:
+      tags:
+        - external
+      description: search stores by addrss
+      responses:
+        '200':
+          description: store search result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreResult"
+  /marketing/advertising:
+    post:
+      tags:
+        - internal
+      description: create a random advertisement
+      requestBody:
+        description: data needed to create the advertisement
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                company:
+                  type: string
+                message:
+                  type: string
+      responses:
+        '200':
+          description: ad posted successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OperationSuccess"
+components:
+  schemas:
+    OperationSuccess:
+      description: a successful operation result
+      type: object
+      properties:
+        data:
+          type: string
+    InventoryItem:
+      description: inventory item
+      type: object
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+    StoreResult:
+      description: a store
+      type: object
+      properties:
+        address:
+          type: string

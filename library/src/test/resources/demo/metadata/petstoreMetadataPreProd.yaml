@@ -1,0 +1,7 @@
+openapi: 3.0.0
+info:
+  title: The Best Petstore APIs (preprod)
+  version: 1.0.0
+  description: An API for The Best Petstore
+servers:
+  - url: http://thebestpetstorepreprod.com/

@@ -1,0 +1,36 @@
+openapi: 3.0.0
+info:
+  title: The Best Petstore Marketing Team API
+  version: 1.0.0
+  description: An API for The Best Petstore's marketing team
+servers:
+  - url: http://thebestpetstore.com/
+paths:
+  /inventory/search/{productId}:
+    get:
+      tags:
+        - external
+      description: search inventory by productId
+      responses:
+        '200':
+          description: inventory result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+components:
+  schemas:
+    InventoryItem:
+      description: inventory item
+      type: object
+      properties:
+        sku:
+          type: string
+        name:
+          type: string
+    OperationSuccess:
+      description: a successful operation result
+      type: object
+      properties:
+        data:
+          type: string

@@ -1,0 +1,5 @@
+[ {
+  "keypath" : "[components, schemas, OperationSuccess, description]",
+  "options" : [ "a successful operation", "a successful operation result" ],
+  "resolvedValue" : null
+} ]
